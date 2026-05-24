@@ -1,8 +1,122 @@
-from flask import Blueprint, jsonify
+from datetime import datetime, timedelta
+from flask import Blueprint, request, jsonify, current_app
+import bcrypt
+import jwt
+
+from app.extensions import db
+from app.models import User
+from .auth_decorator import token_required
+
 
 auth_bp = Blueprint("auth", __name__)
 
 
-@auth_bp.route("/test", methods=["GET"])
-def auth_test():
-    return jsonify({"message": "Auth routes working"}), 200
+@auth_bp.route("/register", methods=["POST"])
+def register():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"message": "Request body is required"}), 400
+
+    name = data.get("name")
+    email = data.get("email")
+    password = data.get("password")
+    role = data.get("role", "staff")
+
+    if not name or not email or not password:
+        return jsonify({"message": "Name, email and password are required"}), 400
+
+    allowed_roles = ["admin", "solicitor", "staff"]
+
+    if role not in allowed_roles:
+        return jsonify({"message": "Invalid role"}), 400
+
+    existing_user = User.query.filter_by(email=email).first()
+
+    if existing_user:
+        return jsonify({"message": "Email already registered"}), 409
+
+    password_hash = bcrypt.hashpw(
+        password.encode("utf-8"),
+        bcrypt.gensalt()
+    ).decode("utf-8")
+
+    new_user = User(
+        name=name,
+        email=email,
+        password_hash=password_hash,
+        role=role
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    return jsonify({
+        "message": "User registered successfully",
+        "user": {
+            "id": new_user.id,
+            "name": new_user.name,
+            "email": new_user.email,
+            "role": new_user.role
+        }
+    }), 201
+
+
+@auth_bp.route("/login", methods=["POST"])
+def login():
+    data = request.get_json()
+
+    if not data:
+        return jsonify({"message": "Request body is required"}), 400
+
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return jsonify({"message": "Email and password are required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        return jsonify({"message": "Invalid email or password"}), 401
+
+    password_valid = bcrypt.checkpw(
+        password.encode("utf-8"),
+        user.password_hash.encode("utf-8")
+    )
+
+    if not password_valid:
+        return jsonify({"message": "Invalid email or password"}), 401
+
+    token = jwt.encode(
+        {
+            "user_id": user.id,
+            "email": user.email,
+            "role": user.role,
+            "exp": datetime.utcnow() + timedelta(hours=8)
+        },
+        current_app.config["SECRET_KEY"],
+        algorithm="HS256"
+    )
+
+    return jsonify({
+        "message": "Login successful",
+        "token": token,
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role
+        }
+    }), 200
+
+
+@auth_bp.route("/profile", methods=["GET"])
+@token_required
+def profile(current_user):
+    return jsonify({
+        "id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email,
+        "role": current_user.role
+    }), 200
