@@ -12,6 +12,7 @@ from .questionnaires.routes import questionnaires_bp
 from .deadlines.routes import deadlines_bp
 from .appointments.routes import appointments_bp
 from .payments.routes import payments_bp
+from .visa_reminders.routes import visa_reminders_bp
 
 def create_app():
     app = Flask(__name__)
@@ -29,6 +30,7 @@ def create_app():
     app.register_blueprint(deadlines_bp, url_prefix="/api")
     app.register_blueprint(appointments_bp, url_prefix="/api")
     app.register_blueprint(payments_bp, url_prefix="/api")
+    app.register_blueprint(visa_reminders_bp, url_prefix="/api")
     
     @app.route("/api/health", methods=["GET"])
     def health_check():
