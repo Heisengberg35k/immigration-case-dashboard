@@ -8,6 +8,7 @@ from .auth.routes import auth_bp
 from .clients.routes import clients_bp
 from .dashboard.routes import dashboard_bp
 from .documents.routes import documents_bp
+from .questionnaires.routes import questionnaires_bp
 
 def create_app():
     app = Flask(__name__)
@@ -21,6 +22,7 @@ def create_app():
     app.register_blueprint(clients_bp, url_prefix="/api/clients")
     app.register_blueprint(dashboard_bp, url_prefix="/api/dashboard")
     app.register_blueprint(documents_bp, url_prefix="/api")
+    app.register_blueprint(questionnaires_bp, url_prefix="/api")
     
     @app.route("/api/health", methods=["GET"])
     def health_check():
