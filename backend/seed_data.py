@@ -10,7 +10,8 @@ from app.models import (
     Appointment,
     Payment,
     VisaReminder,
-    Note
+    Note,
+    AuditLog
 )
 import bcrypt
 
@@ -25,9 +26,52 @@ def hash_password(password):
     ).decode("utf-8")
 
 
+def make_client(
+    full_name,
+    date_of_birth,
+    phone,
+    email,
+    address,
+    contact_method,
+    application_type,
+    case_status,
+    lawyer,
+    staff,
+    reference,
+    deadline,
+    priority,
+    review_status
+):
+    slug = full_name.replace(" ", "")
+
+    return {
+        "client": {
+            "full_name": full_name,
+            "date_of_birth": date_of_birth,
+            "phone": phone,
+            "email": email,
+            "address": address,
+            "preferred_contact_method": contact_method,
+            "whatsapp_number": phone
+        },
+        "case": {
+            "application_type": application_type,
+            "case_status": case_status,
+            "assigned_lawyer": lawyer,
+            "assigned_staff": staff,
+            "home_office_reference": reference,
+            "main_deadline": deadline,
+            "priority": priority,
+            "file_location": f"SharedDrive/Clients/2026/{slug}",
+            "solicitor_review_status": review_status
+        }
+    }
+
+
 with app.app_context():
     print("Clearing old seed data...")
 
+    AuditLog.query.delete()
     Note.query.delete()
     VisaReminder.query.delete()
     Payment.query.delete()
@@ -43,143 +87,207 @@ with app.app_context():
 
     print("Creating users...")
 
-    admin = User(
-        name="Admin User",
-        email="admin@firm.com",
-        password_hash=hash_password("Password123"),
-        role="admin"
-    )
+    users = [
+        User(
+            name="Admin User",
+            email="admin@firm.com",
+            password_hash=hash_password("Password123"),
+            role="admin"
+        ),
+        User(
+            name="Mr Rahman",
+            email="solicitor@firm.com",
+            password_hash=hash_password("Password123"),
+            role="solicitor"
+        ),
+        User(
+            name="Junior Staff 1",
+            email="staff@firm.com",
+            password_hash=hash_password("Password123"),
+            role="staff"
+        ),
+        User(
+            name="Caseworker Test",
+            email="caseworker@firm.com",
+            password_hash=hash_password("Password123"),
+            role="staff"
+        ),
+        User(
+            name="Senior Solicitor",
+            email="senior@firm.com",
+            password_hash=hash_password("Password123"),
+            role="solicitor"
+        )
+    ]
 
-    solicitor = User(
-        name="Mr Rahman",
-        email="solicitor@firm.com",
-        password_hash=hash_password("Password123"),
-        role="solicitor"
-    )
-
-    staff = User(
-        name="Junior Staff 1",
-        email="staff@firm.com",
-        password_hash=hash_password("Password123"),
-        role="staff"
-    )
-
-    db.session.add_all([admin, solicitor, staff])
+    db.session.add_all(users)
     db.session.commit()
+
+    admin, solicitor, staff, caseworker, senior = users
 
     print("Creating clients and cases...")
 
     seed_clients = [
-        {
-            "client": {
-                "full_name": "Labib Khan",
-                "date_of_birth": "1995-04-12",
-                "phone": "07123456789",
-                "email": "labib@example.com",
-                "address": "Stratford, London",
-                "preferred_contact_method": "WhatsApp",
-                "whatsapp_number": "07123456789"
-            },
-            "case": {
-                "application_type": "FLR(M)",
-                "case_status": "Documents Requested",
-                "assigned_lawyer": "Mr Rahman",
-                "assigned_staff": "Junior Staff 1",
-                "home_office_reference": "HO123456",
-                "main_deadline": "2026-06-15",
-                "priority": "High",
-                "file_location": "SharedDrive/Clients/2026/LabibKhan_FLRM",
-                "solicitor_review_status": "Not Reviewed"
-            }
-        },
-        {
-            "client": {
-                "full_name": "Amina Begum",
-                "date_of_birth": "1990-09-22",
-                "phone": "07234567890",
-                "email": "amina@example.com",
-                "address": "Whitechapel, London",
-                "preferred_contact_method": "Email",
-                "whatsapp_number": "07234567890"
-            },
-            "case": {
-                "application_type": "Skilled Worker",
-                "case_status": "Questionnaire Sent",
-                "assigned_lawyer": "Mr Rahman",
-                "assigned_staff": "Junior Staff 1",
-                "home_office_reference": "HO654321",
-                "main_deadline": "2026-06-20",
-                "priority": "Medium",
-                "file_location": "SharedDrive/Clients/2026/AminaBegum_SW",
-                "solicitor_review_status": "Not Reviewed"
-            }
-        },
-        {
-            "client": {
-                "full_name": "Rashid Ali",
-                "date_of_birth": "1988-01-15",
-                "phone": "07345678901",
-                "email": "rashid@example.com",
-                "address": "Ilford, London",
-                "preferred_contact_method": "WhatsApp",
-                "whatsapp_number": "07345678901"
-            },
-            "case": {
-                "application_type": "ILR",
-                "case_status": "Solicitor Review",
-                "assigned_lawyer": "Mr Rahman",
-                "assigned_staff": "Junior Staff 1",
-                "home_office_reference": "HO998877",
-                "main_deadline": "2026-06-05",
-                "priority": "High",
-                "file_location": "SharedDrive/Clients/2026/RashidAli_ILR",
-                "solicitor_review_status": "Pending Review"
-            }
-        },
-        {
-            "client": {
-                "full_name": "Sara Ahmed",
-                "date_of_birth": "1998-11-03",
-                "phone": "07456789012",
-                "email": "sara@example.com",
-                "address": "Croydon, London",
-                "preferred_contact_method": "Email",
-                "whatsapp_number": "07456789012"
-            },
-            "case": {
-                "application_type": "Student Visa",
-                "case_status": "Ready for Submission",
-                "assigned_lawyer": "Mr Rahman",
-                "assigned_staff": "Junior Staff 1",
-                "home_office_reference": "HO112233",
-                "main_deadline": "2026-06-10",
-                "priority": "Medium",
-                "file_location": "SharedDrive/Clients/2026/SaraAhmed_StudentVisa",
-                "solicitor_review_status": "Reviewed"
-            }
-        },
-        {
-            "client": {
-                "full_name": "Tariq Hussain",
-                "date_of_birth": "1985-07-19",
-                "phone": "07567890123",
-                "email": "tariq@example.com",
-                "address": "Barking, London",
-                "preferred_contact_method": "WhatsApp",
-                "whatsapp_number": "07567890123"
-            },
-            "case": {
-                "application_type": "Citizenship",
-                "case_status": "Visa Granted",
-                "assigned_lawyer": "Mr Rahman",
-                "assigned_staff": "Junior Staff 1",
-                "home_office_reference": "HO445566",
-                "main_deadline": "2026-05-01",
-                "priority": "Low",
-                "file_location": "SharedDrive/Clients/2026/TariqHussain_Citizenship",
-                "solicitor_review_status": "Reviewed"
-            }
-        }
+        make_client(
+            "Labib Khan",
+            "1995-04-12",
+            "07123456789",
+            "labib@example.com",
+            "Stratford, London",
+            "WhatsApp",
+            "FLR(M)",
+            "Documents Requested",
+            "Mr Rahman",
+            "Junior Staff 1",
+            "HO123456",
+            "2026-06-15",
+            "High",
+            "Not Reviewed"
+        ),
+        make_client(
+            "Amina Begum",
+            "1990-09-22",
+            "07234567890",
+            "amina@example.com",
+            "Whitechapel, London",
+            "Email",
+            "Skilled Worker",
+            "Questionnaire Sent",
+            "Mr Rahman",
+            "Caseworker Test",
+            "HO654321",
+            "2026-06-20",
+            "Medium",
+            "Not Reviewed"
+        ),
+        make_client(
+            "Rashid Ali",
+            "1988-01-15",
+            "07345678901",
+            "rashid@example.com",
+            "Ilford, London",
+            "WhatsApp",
+            "ILR",
+            "Solicitor Review",
+            "Senior Solicitor",
+            "Junior Staff 1",
+            "HO998877",
+            "2026-06-05",
+            "High",
+            "Pending Review"
+        ),
+        make_client(
+            "Sara Ahmed",
+            "1998-11-03",
+            "07456789012",
+            "sara@example.com",
+            "Croydon, London",
+            "Email",
+            "Student Visa",
+            "Ready for Submission",
+            "Mr Rahman",
+            "Caseworker Test",
+            "HO112233",
+            "2026-06-10",
+            "Medium",
+            "Reviewed"
+        ),
+        make_client(
+            "Tariq Hussain",
+            "1985-07-19",
+            "07567890123",
+            "tariq@example.com",
+            "Barking, London",
+            "WhatsApp",
+            "Citizenship",
+            "Visa Granted",
+            "Senior Solicitor",
+            "Junior Staff 1",
+            "HO445566",
+            "2026-05-01",
+            "Low",
+            "Reviewed"
+        ),
+        make_client(
+            "Maya Patel",
+            "1992-02-18",
+            "07678901234",
+            "maya@example.com",
+            "Harrow, London",
+            "Email",
+            "Spouse Visa",
+            "Waiting Documents",
+            "Mr Rahman",
+            "Junior Staff 1",
+            "HO778899",
+            "2026-06-12",
+            "High",
+            "Not Reviewed"
+        ),
+        make_client(
+            "Omar Farooq",
+            "1983-12-01",
+            "07789012345",
+            "omar@example.com",
+            "East Ham, London",
+            "WhatsApp",
+            "Asylum Support",
+            "Active",
+            "Senior Solicitor",
+            "Caseworker Test",
+            "HO121212",
+            "2026-06-30",
+            "High",
+            "Pending Review"
+        ),
+        make_client(
+            "Nadia Islam",
+            "1996-08-26",
+            "07890123456",
+            "nadia@example.com",
+            "Tower Hamlets, London",
+            "Email",
+            "Graduate Visa",
+            "New Consultation",
+            "Mr Rahman",
+            "Junior Staff 1",
+            "HO343434",
+            "2026-07-04",
+            "Normal",
+            "Not Reviewed"
+        ),
+        make_client(
+            "Chen Wei",
+            "1991-03-09",
+            "07901234567",
+            "chen@example.com",
+            "Canary Wharf, London",
+            "Email",
+            "Global Talent",
+            "Documents Requested",
+            "Senior Solicitor",
+            "Caseworker Test",
+            "HO565656",
+            "2026-06-18",
+            "Medium",
+            "Not Reviewed"
+        ),
+        make_client(
+            "Elena Popescu",
+            "1989-10-30",
+            "07012345678",
+            "elena@example.com",
+            "Wembley, London",
+            "WhatsApp",
+            "EU Settlement Scheme",
+            "Completed",
+            "Mr Rahman",
+            "Junior Staff 1",
+            "HO787878",
+            "2026-05-20",
+            "Low",
+            "Reviewed"
+        )
     ]
 
     created_cases = []
@@ -210,7 +318,7 @@ with app.app_context():
             status="Received",
             source="WhatsApp",
             file_name="LabibKhan_Passport_2026-05-28.pdf",
-            file_location="SharedDrive/Clients/2026/LabibKhan_FLRM/01_ID_Documents",
+            file_location="SharedDrive/Clients/2026/LabibKhan/01_ID_Documents",
             received_date="2026-05-28",
             checked_by="Junior Staff 1",
             notes="Clear scan received."
@@ -251,6 +359,24 @@ with app.app_context():
             file_name="SaraAhmed_CAS_Uploaded.pdf",
             checked_by="Junior Staff 1",
             notes="Uploaded to application portal."
+        ),
+        Document(
+            case_id=created_cases[5].id,
+            document_name="Marriage Certificate",
+            required=True,
+            status="Requested",
+            source="Other",
+            notes="Required for spouse visa evidence."
+        ),
+        Document(
+            case_id=created_cases[8].id,
+            document_name="Endorsement Letter",
+            required=True,
+            status="Received",
+            source="Email",
+            file_name="ChenWei_Endorsement.pdf",
+            checked_by="Caseworker Test",
+            notes="Needs solicitor review."
         )
     ]
 
@@ -286,6 +412,15 @@ with app.app_context():
             answered_date="2026-05-27",
             follow_up_needed=False,
             notes="Answer received."
+        ),
+        Questionnaire(
+            case_id=created_cases[6].id,
+            question="Please list all current dependants.",
+            client_answer="",
+            status="Unclear",
+            asked_date="2026-06-01",
+            follow_up_needed=True,
+            notes="Need complete dependant details."
         )
     ]
 
@@ -314,6 +449,20 @@ with app.app_context():
             deadline_date="2026-06-04",
             status="Due Soon",
             notes="Solicitor review required before submission."
+        ),
+        Deadline(
+            case_id=created_cases[5].id,
+            deadline_type="Upload Deadline",
+            deadline_date="2026-06-10",
+            status="Overdue",
+            notes="Spouse visa bundle still incomplete."
+        ),
+        Deadline(
+            case_id=created_cases[8].id,
+            deadline_type="Solicitor Review",
+            deadline_date="2026-06-10",
+            status="Due Soon",
+            notes="Review endorsement evidence today."
         )
     ]
 
@@ -333,12 +482,21 @@ with app.app_context():
         ),
         Appointment(
             case_id=created_cases[3].id,
-            appointment_date="2026-06-08",
+            appointment_date="2026-06-12",
             appointment_time="14:00",
             appointment_location="Online",
             appointment_type="Final Review Call",
             status="Booked",
             notes="Review application before submission."
+        ),
+        Appointment(
+            case_id=created_cases[7].id,
+            appointment_date="2026-06-18",
+            appointment_time="11:00",
+            appointment_location="Office",
+            appointment_type="Initial Consultation",
+            status="Booked",
+            notes="New consultation follow-up."
         )
     ]
 
@@ -373,6 +531,15 @@ with app.app_context():
             payment_status="Overdue",
             next_payment_due="2026-05-25",
             notes="Payment overdue. Staff to follow up."
+        ),
+        Payment(
+            case_id=created_cases[5].id,
+            total_fee=1800,
+            amount_paid=900,
+            balance_due=900,
+            payment_status="Part Paid",
+            next_payment_due="2026-06-21",
+            notes="Second instalment due after document review."
         )
     ]
 
@@ -388,6 +555,14 @@ with app.app_context():
             reminder_date="2028-11-01",
             client_contacted=False,
             notes="Contact client 6 months before expiry."
+        ),
+        VisaReminder(
+            case_id=created_cases[9].id,
+            visa_granted_date="2025-12-10",
+            visa_expiry_date="2026-12-10",
+            reminder_date="2026-06-10",
+            client_contacted=False,
+            notes="Reminder due today for EUSS follow-up."
         )
     ]
 
@@ -403,13 +578,18 @@ with app.app_context():
         ),
         Note(
             case_id=created_cases[1].id,
-            user_id=staff.id,
+            user_id=caseworker.id,
             note_text="Need clearer copy of Certificate of Sponsorship."
         ),
         Note(
             case_id=created_cases[2].id,
             user_id=solicitor.id,
             note_text="Application ready for solicitor review."
+        ),
+        Note(
+            case_id=created_cases[8].id,
+            user_id=senior.id,
+            note_text="Global Talent evidence should be reviewed before upload."
         )
     ]
 
@@ -421,4 +601,11 @@ with app.app_context():
     print("Login details:")
     print("Admin: admin@firm.com / Password123")
     print("Solicitor: solicitor@firm.com / Password123")
+    print("Senior solicitor: senior@firm.com / Password123")
     print("Staff: staff@firm.com / Password123")
+    print("Caseworker: caseworker@firm.com / Password123")
+    print("")
+    print("Access testing notes:")
+    print("Admin can access Users and Audit Log.")
+    print("Solicitor can access Audit Log and delete protected records.")
+    print("Staff can work on cases but cannot access Users/Audit Log or delete protected records.")
