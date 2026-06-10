@@ -1,0 +1,125 @@
+<div class="dashboard-page">
+  <div class="dashboard-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Overview of active immigration case work</p>
+    </div>
+
+    <button type="button" (click)="loadDashboardSummary()">
+      Refresh
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading dashboard...
+  </div>
+
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <div
+    *ngIf="!loading && !errorMessage && hasDeadlineAlerts()"
+    class="deadline-alert-panel"
+  >
+    <div class="deadline-alert-header">
+      <div>
+        <h2>Deadline Reminders</h2>
+        <p>
+          {{ summary.due_deadlines_today }} due today,
+          {{ summary.overdue_deadlines }} overdue
+        </p>
+      </div>
+    </div>
+
+    <div class="deadline-alert-list">
+      <button
+        *ngFor="let alert of summary.deadline_alerts"
+        type="button"
+        class="deadline-alert-item"
+        [class.overdue]="alert.alert_status === 'Overdue'"
+        (click)="openDeadlineAlert(alert)"
+      >
+        <span class="alert-status">
+          {{ alert.alert_status }}
+        </span>
+
+        <span class="alert-main">
+          <strong>{{ alert.deadline_type }}</strong>
+          <small>
+            {{ alert.client_name }}
+            <ng-container *ngIf="alert.case_type">
+              | {{ alert.case_type }}
+            </ng-container>
+          </small>
+        </span>
+
+        <span class="alert-date">
+          {{ alert.deadline_date }}
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !errorMessage" class="cards-grid">
+    <div class="summary-card">
+      <span class="card-label">Active Cases</span>
+      <strong>{{ summary.active_cases }}</strong>
+      <p>Cases currently being handled</p>
+    </div>
+
+    <div class="summary-card">
+      <span class="card-label">Waiting Documents</span>
+      <strong>{{ summary.waiting_documents }}</strong>
+      <p>Cases with missing or pending documents</p>
+    </div>
+
+    <div class="summary-card">
+      <span class="card-label">Waiting Client Answers</span>
+      <strong>{{ summary.waiting_client_answers }}</strong>
+      <p>Questionnaires or answers still needed</p>
+    </div>
+
+    <div class="summary-card">
+      <span class="card-label">Solicitor Review Pending</span>
+      <strong>{{ summary.solicitor_review_pending }}</strong>
+      <p>Cases waiting for solicitor review</p>
+    </div>
+
+    <div class="summary-card">
+      <span class="card-label">Upload Deadlines This Week</span>
+      <strong>{{ summary.upload_deadlines_this_week }}</strong>
+      <p>Upcoming upload or application deadlines</p>
+    </div>
+
+    <div class="summary-card important">
+      <span class="card-label">Deadlines Due Today</span>
+      <strong>{{ summary.due_deadlines_today }}</strong>
+      <p>Case actions that need attention today</p>
+    </div>
+
+    <div class="summary-card warning">
+      <span class="card-label">Deadlines Overdue</span>
+      <strong>{{ summary.overdue_deadlines }}</strong>
+      <p>Incomplete deadlines with past dates</p>
+    </div>
+
+    <div class="summary-card">
+      <span class="card-label">Appointments This Week</span>
+      <strong>{{ summary.appointments_this_week }}</strong>
+      <p>Biometrics, calls, reviews, or meetings</p>
+    </div>
+
+    <div class="summary-card warning">
+      <span class="card-label">Payments Overdue</span>
+      <strong>{{ summary.payments_overdue }}</strong>
+      <p>Cases with unpaid or overdue balances</p>
+    </div>
+
+    <div class="summary-card important">
+      <span class="card-label">Visa Renewals Due Soon</span>
+      <strong>{{ summary.visa_renewals_due_soon }}</strong>
+      <p>Clients who may need renewal follow-up</p>
+    </div>
+  </div>
+</div>

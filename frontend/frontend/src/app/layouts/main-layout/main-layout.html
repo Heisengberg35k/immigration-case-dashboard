@@ -1,0 +1,33 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <h2>CaseFlow</h2>
+
+    <nav>
+      <a routerLink="/dashboard">Dashboard</a>
+      <a routerLink="/clients">Clients</a>
+      <a routerLink="/reports">Reports</a>
+      <a
+        *ngIf="canViewAuditLog()"
+        routerLink="/audit-log"
+      >
+        Audit Log
+      </a>
+      <a
+        *ngIf="canManageUsers()"
+        routerLink="/users"
+      >
+        Users
+      </a>
+    </nav>
+
+    <div class="user-box">
+      <p>{{ user?.name }}</p>
+      <small>{{ user?.role }}</small>
+      <button (click)="logout()">Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

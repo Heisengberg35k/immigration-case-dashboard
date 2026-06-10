@@ -1,0 +1,53 @@
+<div class="audit-page">
+  <div class="page-header">
+    <div>
+      <h1>Audit Log</h1>
+      <p>Recent security and case activity</p>
+    </div>
+
+    <button type="button" (click)="loadAuditLogs()">
+      Refresh
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading audit log...
+  </div>
+
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && !errorMessage" class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Entity</th>
+          <th>Description</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let log of logs">
+          <td>{{ log.created_at || 'N/A' }}</td>
+          <td>{{ log.user_name || log.user_email || 'System' }}</td>
+          <td>{{ log.action }}</td>
+          <td>
+            {{ log.entity_type || 'N/A' }}
+            <span *ngIf="log.entity_id">#{{ log.entity_id }}</span>
+          </td>
+          <td>{{ log.description || 'N/A' }}</td>
+          <td>{{ log.ip_address || 'N/A' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="logs.length === 0" class="empty-state">
+      No audit log entries found.
+    </div>
+  </div>
+</div>

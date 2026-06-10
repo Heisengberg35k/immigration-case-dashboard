@@ -1,0 +1,442 @@
+<div class="edit-page">
+  <div class="page-header">
+    <button
+      type="button"
+      class="back-button"
+      (click)="cancel()"
+    >
+      ← Back to Client Profile
+    </button>
+
+    <h1>Edit Client</h1>
+
+    <p>
+      Update the client’s personal details and linked case.
+    </p>
+  </div>
+
+  <div
+    *ngIf="pageLoading"
+    class="loading"
+  >
+    Loading client details...
+  </div>
+
+  <div
+    *ngIf="errorMessage"
+    class="message error-message"
+  >
+    {{ errorMessage }}
+  </div>
+
+  <div
+    *ngIf="successMessage"
+    class="message success-message"
+  >
+    {{ successMessage }}
+  </div>
+
+  <form
+    *ngIf="!pageLoading"
+    #editForm="ngForm"
+    (ngSubmit)="saveClient()"
+  >
+    <div class="form-card">
+      <div class="section-header">
+        <h2>Client Details</h2>
+
+        <p>
+          Update personal and contact information.
+        </p>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label for="full_name">
+            Full Name
+            <span class="required">*</span>
+          </label>
+
+          <input
+            id="full_name"
+            name="full_name"
+            type="text"
+            [(ngModel)]="clientData.full_name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="date_of_birth">
+            Date of Birth
+          </label>
+
+          <input
+            id="date_of_birth"
+            name="date_of_birth"
+            type="date"
+            [(ngModel)]="clientData.date_of_birth"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">
+            Phone Number
+          </label>
+
+          <input
+            id="phone"
+            name="phone"
+            type="tel"
+            [(ngModel)]="clientData.phone"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">
+            Email Address
+          </label>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="clientData.email"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="whatsapp_number">
+            WhatsApp Number
+          </label>
+
+          <input
+            id="whatsapp_number"
+            name="whatsapp_number"
+            type="tel"
+            [(ngModel)]="clientData.whatsapp_number"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="preferred_contact_method">
+            Preferred Contact Method
+          </label>
+
+          <select
+            id="preferred_contact_method"
+            name="preferred_contact_method"
+            [(ngModel)]="clientData.preferred_contact_method"
+          >
+            <option value="">
+              Select contact method
+            </option>
+
+            <option value="Phone">
+              Phone
+            </option>
+
+            <option value="Email">
+              Email
+            </option>
+
+            <option value="WhatsApp">
+              WhatsApp
+            </option>
+
+            <option value="In Person">
+              In Person
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="address">
+            Address
+          </label>
+
+          <textarea
+            id="address"
+            name="address"
+            rows="4"
+            [(ngModel)]="clientData.address"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="section-header">
+        <h2>Case Details</h2>
+
+        <p>
+          Update the linked immigration case.
+        </p>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="application_type">
+            Application Type
+            <span class="required">*</span>
+          </label>
+
+          <select
+            id="application_type"
+            name="application_type"
+            [(ngModel)]="clientData.application_type"
+            required
+          >
+            <option value="">
+              Select application type
+            </option>
+
+            <option value="Spouse Visa">
+              Spouse Visa
+            </option>
+
+            <option value="Skilled Worker Visa">
+              Skilled Worker Visa
+            </option>
+
+            <option value="Student Visa">
+              Student Visa
+            </option>
+
+            <option value="Graduate Visa">
+              Graduate Visa
+            </option>
+
+            <option value="Visitor Visa">
+              Visitor Visa
+            </option>
+
+            <option value="Indefinite Leave to Remain">
+              Indefinite Leave to Remain
+            </option>
+
+            <option value="British Citizenship">
+              British Citizenship
+            </option>
+
+            <option value="Human Rights Application">
+              Human Rights Application
+            </option>
+
+            <option value="Asylum Application">
+              Asylum Application
+            </option>
+
+            <option value="Other">
+              Other
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="case_status">
+            Case Status
+          </label>
+
+          <select
+            id="case_status"
+            name="case_status"
+            [(ngModel)]="clientData.case_status"
+          >
+            <option value="New Consultation">
+              New Consultation
+            </option>
+
+            <option value="Documents Requested">
+              Documents Requested
+            </option>
+
+            <option value="Waiting Documents">
+              Waiting Documents
+            </option>
+
+            <option value="Questionnaire">
+              Questionnaire
+            </option>
+
+            <option value="Application Preparation">
+              Application Preparation
+            </option>
+
+            <option value="Solicitor Review">
+              Solicitor Review
+            </option>
+
+            <option value="Ready to Submit">
+              Ready to Submit
+            </option>
+
+            <option value="Submitted">
+              Submitted
+            </option>
+
+            <option value="Awaiting Decision">
+              Awaiting Decision
+            </option>
+
+            <option value="Visa Granted">
+              Visa Granted
+            </option>
+
+            <option value="Visa Refused">
+              Visa Refused
+            </option>
+
+            <option value="Closed">
+              Closed
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="assigned_lawyer">
+            Assigned Lawyer
+          </label>
+
+          <input
+            id="assigned_lawyer"
+            name="assigned_lawyer"
+            type="text"
+            [(ngModel)]="clientData.assigned_lawyer"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="assigned_staff">
+            Assigned Staff
+          </label>
+
+          <input
+            id="assigned_staff"
+            name="assigned_staff"
+            type="text"
+            [(ngModel)]="clientData.assigned_staff"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="home_office_reference">
+            Home Office Reference
+          </label>
+
+          <input
+            id="home_office_reference"
+            name="home_office_reference"
+            type="text"
+            [(ngModel)]="clientData.home_office_reference"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="main_deadline">
+            Main Deadline
+          </label>
+
+          <input
+            id="main_deadline"
+            name="main_deadline"
+            type="date"
+            [(ngModel)]="clientData.main_deadline"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="priority">
+            Priority
+          </label>
+
+          <select
+            id="priority"
+            name="priority"
+            [(ngModel)]="clientData.priority"
+          >
+            <option value="Low">
+              Low
+            </option>
+
+            <option value="Normal">
+              Normal
+            </option>
+
+            <option value="High">
+              High
+            </option>
+
+            <option value="Urgent">
+              Urgent
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="solicitor_review_status">
+            Solicitor Review Status
+          </label>
+
+          <select
+            id="solicitor_review_status"
+            name="solicitor_review_status"
+            [(ngModel)]="clientData.solicitor_review_status"
+          >
+            <option value="Not Reviewed">
+              Not Reviewed
+            </option>
+
+            <option value="Review Pending">
+              Review Pending
+            </option>
+
+            <option value="Under Review">
+              Under Review
+            </option>
+
+            <option value="Changes Required">
+              Changes Required
+            </option>
+
+            <option value="Approved">
+              Approved
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="file_location">
+            File Location
+          </label>
+
+          <input
+            id="file_location"
+            name="file_location"
+            type="text"
+            [(ngModel)]="clientData.file_location"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="cancel-button"
+        (click)="cancel()"
+        [disabled]="saving"
+      >
+        Cancel
+      </button>
+
+      <button
+        type="submit"
+        class="save-button"
+        [disabled]="saving || editForm.invalid"
+      >
+        {{ saving ? 'Saving Changes...' : 'Save Changes' }}
+      </button>
+    </div>
+  </form>
+</div>

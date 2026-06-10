@@ -1,0 +1,103 @@
+<div class="clients-page">
+  <div class="clients-header">
+    <div>
+      <h1>Clients</h1>
+      <p>View and manage immigration clients</p>
+    </div>
+
+    <button
+      type="button"
+      (click)="addClient()"
+    >
+      Add Client
+    </button>
+  </div>
+
+  <div
+    *ngIf="loading"
+    class="loading"
+  >
+    Loading clients...
+  </div>
+
+  <div
+    *ngIf="errorMessage"
+    class="error"
+  >
+    {{ errorMessage }}
+  </div>
+
+  <div
+    *ngIf="!loading && !errorMessage"
+    class="table-card"
+  >
+    <table>
+      <thead>
+        <tr>
+          <th>Client Name</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Contact Method</th>
+          <th>Case Type</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let client of clients">
+          <td>
+            {{ client.full_name || 'N/A' }}
+          </td>
+
+          <td>
+            {{ client.email || 'N/A' }}
+          </td>
+
+          <td>
+            {{ client.phone || 'N/A' }}
+          </td>
+
+          <td>
+            {{ client.preferred_contact_method || 'N/A' }}
+          </td>
+
+          <td>
+            {{
+              client.application_type ||
+              client.case_type ||
+              'N/A'
+            }}
+          </td>
+
+          <td>
+            <span class="status-pill">
+              {{
+                client.case_status ||
+                client.status ||
+                'N/A'
+              }}
+            </span>
+          </td>
+
+          <td>
+            <button
+              type="button"
+              class="view-btn"
+              (click)="openClient(client)"
+            >
+              View
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div
+      *ngIf="clients.length === 0"
+      class="empty-state"
+    >
+      No clients found.
+    </div>
+  </div>
+</div>

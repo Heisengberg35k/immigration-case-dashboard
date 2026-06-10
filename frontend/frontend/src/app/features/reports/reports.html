@@ -1,0 +1,109 @@
+<div class="reports-page">
+  <div class="page-header">
+    <div>
+      <h1>Reports</h1>
+      <p>Operational overview across cases, documents and payments</p>
+    </div>
+
+    <button type="button" (click)="loadReports()">
+      Refresh
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading reports...
+  </div>
+
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && !errorMessage && report">
+    <div class="metric-grid">
+      <div class="metric-card">
+        <span>Clients</span>
+        <strong>{{ report.totals.clients }}</strong>
+      </div>
+
+      <div class="metric-card">
+        <span>Cases</span>
+        <strong>{{ report.totals.cases }}</strong>
+      </div>
+
+      <div class="metric-card">
+        <span>Documents</span>
+        <strong>{{ report.totals.documents }}</strong>
+      </div>
+
+      <div class="metric-card warning">
+        <span>Overdue Deadlines</span>
+        <strong>{{ report.totals.overdue_deadlines }}</strong>
+      </div>
+
+      <div class="metric-card">
+        <span>Appointments</span>
+        <strong>{{ report.totals.appointments }}</strong>
+      </div>
+
+      <div class="metric-card">
+        <span>Visa Reminders</span>
+        <strong>{{ report.totals.visa_reminders }}</strong>
+      </div>
+
+      <div class="metric-card important">
+        <span>Total Balance Due</span>
+        <strong>GBP {{ report.totals.total_balance_due }}</strong>
+      </div>
+    </div>
+
+    <div class="report-grid">
+      <section class="report-section">
+        <h2>Cases By Status</h2>
+        <table>
+          <tbody>
+            <tr *ngFor="let row of report.cases_by_status">
+              <td>{{ row.label }}</td>
+              <td>{{ row.count }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="report-section">
+        <h2>Cases By Type</h2>
+        <table>
+          <tbody>
+            <tr *ngFor="let row of report.cases_by_type">
+              <td>{{ row.label }}</td>
+              <td>{{ row.count }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="report-section">
+        <h2>Documents By Status</h2>
+        <table>
+          <tbody>
+            <tr *ngFor="let row of report.documents_by_status">
+              <td>{{ row.label }}</td>
+              <td>{{ row.count }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="report-section">
+        <h2>Payments By Status</h2>
+        <table>
+          <tbody>
+            <tr *ngFor="let row of report.payments_by_status">
+              <td>{{ row.label }}</td>
+              <td>{{ row.count }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+</div>

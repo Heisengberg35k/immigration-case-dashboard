@@ -1,0 +1,119 @@
+.reports-page {
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.page-header h1 {
+  margin: 0;
+  color: #111827;
+  font-size: 28px;
+}
+
+.page-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+}
+
+.page-header button {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.metric-card,
+.report-section {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.metric-card span {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 9px;
+  color: #111827;
+  font-size: 28px;
+}
+
+.metric-card.warning {
+  border-left: 5px solid #f59e0b;
+}
+
+.metric-card.important {
+  border-left: 5px solid #dc2626;
+}
+
+.report-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.report-section h2 {
+  margin: 0 0 12px;
+  color: #111827;
+  font-size: 17px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+td {
+  padding: 10px 0;
+  border-top: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+td:last-child {
+  text-align: right;
+  font-weight: 700;
+}
+
+.loading,
+.error {
+  padding: 14px;
+  border-radius: 8px;
+}
+
+.loading {
+  background: #f9fafb;
+  color: #374151;
+}
+
+.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 1000px) {
+  .metric-grid,
+  .report-grid {
+    grid-template-columns: 1fr;
+  }
+}

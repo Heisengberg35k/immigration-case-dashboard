@@ -1,0 +1,60 @@
+<div class="users-page">
+  <div class="page-header">
+    <div>
+      <h1>Users</h1>
+      <p>Manage staff roles and access levels</p>
+    </div>
+
+    <button type="button" (click)="loadUsers()">
+      Refresh
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading users...
+  </div>
+
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="!loading && !errorMessage" class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>
+            <select
+              [ngModel]="user.role"
+              (ngModelChange)="updateRole(user, $event)"
+              [disabled]="savingUserId === user.id"
+            >
+              <option value="admin">admin</option>
+              <option value="solicitor">solicitor</option>
+              <option value="staff">staff</option>
+            </select>
+          </td>
+          <td>{{ user.created_at || 'N/A' }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="users.length === 0" class="empty-state">
+      No users found.
+    </div>
+  </div>
+</div>
