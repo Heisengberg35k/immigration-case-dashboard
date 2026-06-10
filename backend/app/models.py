@@ -249,3 +249,22 @@ class Note(db.Model):
 
     note_text = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class AuditLog(db.Model):
+    __tablename__ = "audit_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id"),
+        nullable=True
+    )
+
+    action = db.Column(db.String(120), nullable=False)
+    entity_type = db.Column(db.String(120))
+    entity_id = db.Column(db.Integer)
+    description = db.Column(db.Text)
+    ip_address = db.Column(db.String(80))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

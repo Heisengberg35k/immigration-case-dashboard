@@ -5,14 +5,16 @@ import jwt
 
 from app.extensions import db
 from app.models import User
-from .auth_decorator import token_required
+from app.audit.service import record_audit
+from .auth_decorator import roles_required, token_required
 
 
 auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/register", methods=["POST"])
-def register():
+@roles_required("admin")
+def register(current_user):
     data = request.get_json()
 
     if not data:
@@ -50,6 +52,14 @@ def register():
 
     db.session.add(new_user)
     db.session.commit()
+
+    record_audit(
+        current_user,
+        "user_created",
+        "User",
+        new_user.id,
+        f"Created user {new_user.email} with role {new_user.role}"
+    )
 
     return jsonify({
         "message": "User registered successfully",
@@ -97,6 +107,14 @@ def login():
         },
         current_app.config["SECRET_KEY"],
         algorithm="HS256"
+    )
+
+    record_audit(
+        user,
+        "login",
+        "User",
+        user.id,
+        "User logged in"
     )
 
     return jsonify({
