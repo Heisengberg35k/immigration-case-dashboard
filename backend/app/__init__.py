@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 
 from .config import Config
-from .extensions import db
+from .extensions import db, migrate
 
 from .auth.routes import auth_bp
 from .clients.routes import clients_bp
@@ -28,16 +28,14 @@ def create_app():
         app,
         resources={
             r"/api/*": {
-                "origins": [
-                    "http://localhost:4200",
-                    "http://127.0.0.1:4200"
-                ]
+                "origins": app.config["CORS_ORIGINS"]
             }
         },
         supports_credentials=True,
     )
 
     db.init_app(app)
+    migrate.init_app(app, db)
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
@@ -62,8 +60,10 @@ def create_app():
     def health_check():
         return jsonify({"status": "running"}), 200
 
-    with app.app_context():
-        from . import models  # noqa: F401
-        db.create_all()
+    from . import models  # noqa: F401
+
+    if app.config["AUTO_CREATE_TABLES"]:
+        with app.app_context():
+            db.create_all()
 
     return app
