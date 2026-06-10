@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Case, VisaReminder
-from app.auth.auth_decorator import token_required
+from app.auth.auth_decorator import roles_required, token_required
 
 
 visa_reminders_bp = Blueprint("visa_reminders", __name__)
@@ -132,7 +132,7 @@ def update_visa_reminder(current_user, reminder_id):
 
 
 @visa_reminders_bp.route("/visa-reminders/<int:reminder_id>", methods=["DELETE"])
-@token_required
+@roles_required("admin", "solicitor")
 def delete_visa_reminder(current_user, reminder_id):
     reminder = VisaReminder.query.get(reminder_id)
 

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Case, Payment
-from app.auth.auth_decorator import token_required
+from app.auth.auth_decorator import roles_required, token_required
 
 
 payments_bp = Blueprint("payments", __name__)
@@ -167,7 +167,7 @@ def update_payment(current_user, payment_id):
 
 
 @payments_bp.route("/payments/<int:payment_id>", methods=["DELETE"])
-@token_required
+@roles_required("admin", "solicitor")
 def delete_payment(current_user, payment_id):
     payment = Payment.query.get(payment_id)
 

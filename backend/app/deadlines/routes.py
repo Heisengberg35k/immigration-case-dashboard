@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Case, Deadline
-from app.auth.auth_decorator import token_required
+from app.auth.auth_decorator import roles_required, token_required
 
 
 deadlines_bp = Blueprint("deadlines", __name__)
@@ -136,7 +136,7 @@ def update_deadline(current_user, deadline_id):
 
 
 @deadlines_bp.route("/deadlines/<int:deadline_id>", methods=["DELETE"])
-@token_required
+@roles_required("admin", "solicitor")
 def delete_deadline(current_user, deadline_id):
     deadline = Deadline.query.get(deadline_id)
 

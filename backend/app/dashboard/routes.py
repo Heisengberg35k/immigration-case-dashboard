@@ -26,6 +26,33 @@ def parse_date(date_text):
         return None
 
 
+def deadline_alert_to_dict(deadline, deadline_date, today):
+    case = Case.query.get(deadline.case_id)
+    client = case.client if case else None
+    days_until_due = (deadline_date - today).days
+
+    if days_until_due < 0:
+        alert_status = "Overdue"
+    elif days_until_due == 0:
+        alert_status = "Due Today"
+    else:
+        alert_status = "Due Soon"
+
+    return {
+        "id": deadline.id,
+        "case_id": deadline.case_id,
+        "client_id": client.id if client else None,
+        "client_name": client.full_name if client else "Unknown client",
+        "case_type": case.application_type if case else None,
+        "deadline_type": deadline.deadline_type,
+        "deadline_date": deadline.deadline_date,
+        "status": deadline.status,
+        "alert_status": alert_status,
+        "days_until_due": days_until_due,
+        "notes": deadline.notes
+    }
+
+
 @dashboard_bp.route("/summary", methods=["GET"])
 @token_required
 def dashboard_summary(current_user):
@@ -51,9 +78,24 @@ def dashboard_summary(current_user):
 
     all_deadlines = Deadline.query.all()
     upload_deadlines_this_week = 0
+    due_deadlines_today = 0
+    overdue_deadlines = 0
+    deadline_alerts = []
 
     for deadline in all_deadlines:
         deadline_date = parse_date(deadline.deadline_date)
+
+        if deadline_date and deadline.status != "Completed":
+            if deadline_date == today:
+                due_deadlines_today += 1
+                deadline_alerts.append(
+                    deadline_alert_to_dict(deadline, deadline_date, today)
+                )
+            elif deadline_date < today:
+                overdue_deadlines += 1
+                deadline_alerts.append(
+                    deadline_alert_to_dict(deadline, deadline_date, today)
+                )
 
         if (
             deadline_date
@@ -99,6 +141,16 @@ def dashboard_summary(current_user):
         "waiting_client_answers": waiting_client_answers,
         "solicitor_review_pending": solicitor_review_pending,
         "upload_deadlines_this_week": upload_deadlines_this_week,
+        "due_deadlines_today": due_deadlines_today,
+        "overdue_deadlines": overdue_deadlines,
+        "deadline_alerts": sorted(
+            deadline_alerts,
+            key=lambda item: (
+                item["days_until_due"],
+                item["deadline_date"],
+                item["client_name"]
+            )
+        ),
         "appointments_this_week": appointments_this_week,
         "payments_overdue": payments_overdue,
         "visa_renewals_due_soon": visa_renewals_due_soon
