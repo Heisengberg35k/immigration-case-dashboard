@@ -2,7 +2,12 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Case, Deadline
-from app.auth.auth_decorator import roles_required, token_required
+from app.auth.auth_decorator import (
+    CASE_DELETE_ROLES,
+    CASE_WRITE_ROLES,
+    roles_required,
+    token_required,
+)
 
 
 deadlines_bp = Blueprint("deadlines", __name__)
@@ -38,7 +43,7 @@ def get_case_deadlines(current_user, case_id):
 
 
 @deadlines_bp.route("/cases/<int:case_id>/deadlines", methods=["POST"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def create_deadline(current_user, case_id):
     case = Case.query.get(case_id)
 
@@ -100,7 +105,7 @@ def get_deadline(current_user, deadline_id):
 
 
 @deadlines_bp.route("/deadlines/<int:deadline_id>", methods=["PUT"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def update_deadline(current_user, deadline_id):
     deadline = Deadline.query.get(deadline_id)
 
@@ -136,7 +141,7 @@ def update_deadline(current_user, deadline_id):
 
 
 @deadlines_bp.route("/deadlines/<int:deadline_id>", methods=["DELETE"])
-@roles_required("admin", "solicitor")
+@roles_required(*CASE_DELETE_ROLES)
 def delete_deadline(current_user, deadline_id):
     deadline = Deadline.query.get(deadline_id)
 

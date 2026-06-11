@@ -2,7 +2,12 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Case, Questionnaire
-from app.auth.auth_decorator import roles_required, token_required
+from app.auth.auth_decorator import (
+    CASE_DELETE_ROLES,
+    CASE_WRITE_ROLES,
+    roles_required,
+    token_required,
+)
 
 
 questionnaires_bp = Blueprint("questionnaires", __name__)
@@ -44,7 +49,7 @@ def get_case_questionnaires(current_user, case_id):
 
 
 @questionnaires_bp.route("/cases/<int:case_id>/questionnaires", methods=["POST"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def create_questionnaire(current_user, case_id):
     case = Case.query.get(case_id)
 
@@ -107,7 +112,7 @@ def get_questionnaire(current_user, questionnaire_id):
 
 
 @questionnaires_bp.route("/questionnaires/<int:questionnaire_id>", methods=["PUT"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def update_questionnaire(current_user, questionnaire_id):
     questionnaire = Questionnaire.query.get(questionnaire_id)
 
@@ -157,7 +162,7 @@ def update_questionnaire(current_user, questionnaire_id):
 
 
 @questionnaires_bp.route("/questionnaires/<int:questionnaire_id>", methods=["DELETE"])
-@roles_required("admin", "solicitor")
+@roles_required(*CASE_DELETE_ROLES)
 def delete_questionnaire(current_user, questionnaire_id):
     questionnaire = Questionnaire.query.get(questionnaire_id)
 

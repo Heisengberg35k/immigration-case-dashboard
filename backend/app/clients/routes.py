@@ -2,7 +2,12 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Client, Case
-from app.auth.auth_decorator import roles_required, token_required
+from app.auth.auth_decorator import (
+    CASE_DELETE_ROLES,
+    CASE_WRITE_ROLES,
+    roles_required,
+    token_required,
+)
 
 
 clients_bp = Blueprint("clients", __name__)
@@ -83,7 +88,7 @@ def get_client(current_user, client_id):
 
 
 @clients_bp.route("/clients", methods=["POST"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def create_client(current_user):
     data = request.get_json()
 
@@ -136,7 +141,7 @@ def create_client(current_user):
 
 
 @clients_bp.route("/clients/<int:client_id>", methods=["PUT"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def update_client(current_user, client_id):
     client = db.session.get(Client, client_id)
 
@@ -201,7 +206,7 @@ def update_client(current_user, client_id):
 
 
 @clients_bp.route("/clients/<int:client_id>", methods=["DELETE"])
-@roles_required("admin", "solicitor")
+@roles_required(*CASE_DELETE_ROLES)
 def delete_client(current_user, client_id):
     client = db.session.get(Client, client_id)
 

@@ -2,7 +2,12 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Case, Note
-from app.auth.auth_decorator import roles_required, token_required
+from app.auth.auth_decorator import (
+    CASE_DELETE_ROLES,
+    CASE_WRITE_ROLES,
+    roles_required,
+    token_required,
+)
 from app.audit.service import record_audit
 
 
@@ -45,7 +50,7 @@ def get_case_notes(current_user, case_id):
 
 
 @notes_bp.route("/cases/<int:case_id>/notes", methods=["POST"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def create_note(current_user, case_id):
     case = db.session.get(Case, case_id)
 
@@ -86,7 +91,7 @@ def create_note(current_user, case_id):
 
 
 @notes_bp.route("/notes/<int:note_id>", methods=["PUT"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def update_note(current_user, note_id):
     note = db.session.get(Note, note_id)
 
@@ -121,7 +126,7 @@ def update_note(current_user, note_id):
 
 
 @notes_bp.route("/notes/<int:note_id>", methods=["DELETE"])
-@roles_required("admin", "solicitor")
+@roles_required(*CASE_DELETE_ROLES)
 def delete_note(current_user, note_id):
     note = db.session.get(Note, note_id)
 

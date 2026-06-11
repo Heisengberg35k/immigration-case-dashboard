@@ -5,6 +5,10 @@ import jwt
 from app.models import User
 
 
+CASE_WRITE_ROLES = ("admin", "solicitor", "staff")
+CASE_DELETE_ROLES = ("admin", "solicitor")
+
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):

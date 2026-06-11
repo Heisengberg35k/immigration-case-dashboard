@@ -6,7 +6,12 @@ from werkzeug.utils import secure_filename
 
 from app.extensions import db
 from app.models import Case, Document
-from app.auth.auth_decorator import roles_required, token_required
+from app.auth.auth_decorator import (
+    CASE_DELETE_ROLES,
+    CASE_WRITE_ROLES,
+    roles_required,
+    token_required,
+)
 from app.audit.service import record_audit
 
 
@@ -173,7 +178,7 @@ def get_case_documents(current_user, case_id):
     "/cases/<int:case_id>/documents",
     methods=["POST"]
 )
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def create_document(current_user, case_id):
     case = db.session.get(Case, case_id)
 
@@ -222,7 +227,7 @@ def create_document(current_user, case_id):
     "/cases/<int:case_id>/documents/upload",
     methods=["POST"]
 )
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def upload_document(current_user, case_id):
     case = db.session.get(Case, case_id)
 
@@ -367,7 +372,7 @@ def download_document(current_user, document_id):
     "/documents/<int:document_id>",
     methods=["PUT"]
 )
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def update_document(current_user, document_id):
     document = db.session.get(Document, document_id)
 
@@ -416,7 +421,7 @@ def update_document(current_user, document_id):
     "/documents/<int:document_id>",
     methods=["DELETE"]
 )
-@roles_required("admin", "solicitor")
+@roles_required(*CASE_DELETE_ROLES)
 def delete_document(current_user, document_id):
     document = db.session.get(Document, document_id)
 

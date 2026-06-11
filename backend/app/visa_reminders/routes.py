@@ -2,7 +2,12 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Case, VisaReminder
-from app.auth.auth_decorator import roles_required, token_required
+from app.auth.auth_decorator import (
+    CASE_DELETE_ROLES,
+    CASE_WRITE_ROLES,
+    roles_required,
+    token_required,
+)
 
 
 visa_reminders_bp = Blueprint("visa_reminders", __name__)
@@ -42,7 +47,7 @@ def get_case_visa_reminders(current_user, case_id):
 
 
 @visa_reminders_bp.route("/cases/<int:case_id>/visa-reminders", methods=["POST"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def create_visa_reminder(current_user, case_id):
     case = Case.query.get(case_id)
 
@@ -93,7 +98,7 @@ def get_visa_reminder(current_user, reminder_id):
 
 
 @visa_reminders_bp.route("/visa-reminders/<int:reminder_id>", methods=["PUT"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def update_visa_reminder(current_user, reminder_id):
     reminder = VisaReminder.query.get(reminder_id)
 
@@ -132,7 +137,7 @@ def update_visa_reminder(current_user, reminder_id):
 
 
 @visa_reminders_bp.route("/visa-reminders/<int:reminder_id>", methods=["DELETE"])
-@roles_required("admin", "solicitor")
+@roles_required(*CASE_DELETE_ROLES)
 def delete_visa_reminder(current_user, reminder_id):
     reminder = VisaReminder.query.get(reminder_id)
 

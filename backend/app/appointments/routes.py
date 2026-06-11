@@ -2,7 +2,12 @@ from flask import Blueprint, request, jsonify
 
 from app.extensions import db
 from app.models import Case, Appointment
-from app.auth.auth_decorator import roles_required, token_required
+from app.auth.auth_decorator import (
+    CASE_DELETE_ROLES,
+    CASE_WRITE_ROLES,
+    roles_required,
+    token_required,
+)
 
 
 appointments_bp = Blueprint("appointments", __name__)
@@ -43,7 +48,7 @@ def get_case_appointments(current_user, case_id):
 
 
 @appointments_bp.route("/cases/<int:case_id>/appointments", methods=["POST"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def create_appointment(current_user, case_id):
     case = Case.query.get(case_id)
 
@@ -104,7 +109,7 @@ def get_appointment(current_user, appointment_id):
 
 
 @appointments_bp.route("/appointments/<int:appointment_id>", methods=["PUT"])
-@token_required
+@roles_required(*CASE_WRITE_ROLES)
 def update_appointment(current_user, appointment_id):
     appointment = Appointment.query.get(appointment_id)
 
@@ -155,7 +160,7 @@ def update_appointment(current_user, appointment_id):
 
 
 @appointments_bp.route("/appointments/<int:appointment_id>", methods=["DELETE"])
-@roles_required("admin", "solicitor")
+@roles_required(*CASE_DELETE_ROLES)
 def delete_appointment(current_user, appointment_id):
     appointment = Appointment.query.get(appointment_id)
 
