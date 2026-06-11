@@ -1,0 +1,111 @@
+<div class="section-card">
+  <div class="section-title-row">
+    <div>
+      <h2>Payments</h2>
+      <p class="section-description">
+        Track fees, balances and next payment dates.
+      </p>
+    </div>
+
+    <button type="button" class="add-record-btn" (click)="showAddPaymentForm()">
+      Add Payment
+    </button>
+  </div>
+
+  <div *ngIf="paymentErrorMessage" class="document-message document-error">
+    {{ paymentErrorMessage }}
+  </div>
+
+  <div *ngIf="paymentSuccessMessage" class="document-message document-success">
+    {{ paymentSuccessMessage }}
+  </div>
+
+  <div *ngIf="paymentFormVisible" class="document-form">
+    <div class="document-form-header">
+      <div>
+        <h3>{{ editingPaymentId ? 'Edit Payment' : 'Add Payment' }}</h3>
+        <p>Record fee amounts and payment status.</p>
+      </div>
+
+      <button type="button" class="close-form-btn" (click)="closePaymentForm()">x</button>
+    </div>
+
+    <form #paymentForm="ngForm" (ngSubmit)="savePayment()">
+      <div class="document-form-grid">
+        <div class="form-group">
+          <label for="total_fee">Total Fee</label>
+          <input id="total_fee" name="total_fee" type="number" min="0" step="0.01" [(ngModel)]="paymentData.total_fee" />
+        </div>
+
+        <div class="form-group">
+          <label for="amount_paid">Amount Paid</label>
+          <input id="amount_paid" name="amount_paid" type="number" min="0" step="0.01" [(ngModel)]="paymentData.amount_paid" />
+        </div>
+
+        <div class="form-group">
+          <label for="payment_status">Status</label>
+          <select id="payment_status" name="payment_status" [(ngModel)]="paymentData.payment_status">
+            <option value="">Auto calculate</option>
+            <option value="Paid">Paid</option>
+            <option value="Part Paid">Part Paid</option>
+            <option value="Overdue">Overdue</option>
+            <option value="Payment Plan">Payment Plan</option>
+            <option value="No Payment Required">No Payment Required</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="next_payment_due">Next Payment Due</label>
+          <input id="next_payment_due" name="next_payment_due" type="date" [(ngModel)]="paymentData.next_payment_due" />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="payment_notes">Notes</label>
+          <textarea id="payment_notes" name="payment_notes" rows="3" [(ngModel)]="paymentData.notes"></textarea>
+        </div>
+      </div>
+
+      <div class="document-form-actions">
+        <button type="button" class="cancel-document-btn" (click)="closePaymentForm()" [disabled]="paymentSaving">Cancel</button>
+        <button type="submit" class="save-document-btn" [disabled]="paymentSaving || paymentForm.invalid">
+          {{ paymentSaving ? 'Saving...' : editingPaymentId ? 'Save Changes' : 'Add Payment' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Total Fee</th>
+          <th>Paid</th>
+          <th>Balance</th>
+          <th>Status</th>
+          <th>Next Payment</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let payment of profile.payments">
+          <td>GBP {{ payment.total_fee || 0 }}</td>
+          <td>GBP {{ payment.amount_paid || 0 }}</td>
+          <td>GBP {{ payment.balance_due || 0 }}</td>
+          <td>{{ payment.payment_status || payment.status || 'N/A' }}</td>
+          <td>{{ payment.next_payment_due || payment.next_payment_date || 'N/A' }}</td>
+          <td>
+            <div class="row-actions">
+              <button type="button" class="row-edit-btn" (click)="editPayment(payment)">Edit</button>
+              <button type="button" class="row-delete-btn" (click)="deletePayment(payment)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!profile.payments || profile.payments.length === 0" class="empty-state">
+    No payment records found.
+  </div>
+</div>
