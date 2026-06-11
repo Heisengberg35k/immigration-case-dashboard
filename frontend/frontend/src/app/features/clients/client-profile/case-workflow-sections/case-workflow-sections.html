@@ -1121,112 +1121,11 @@
       </div>
     </div>
 
-    <div class="section-card">
-      <div class="section-title-row">
-        <div>
-          <h2>Visa Reminders</h2>
-          <p class="section-description">
-            Track visa expiry dates and renewal follow-up.
-          </p>
-        </div>
-
-        <button type="button" class="add-record-btn" (click)="showAddVisaReminderForm()">
-          Add Reminder
-        </button>
-      </div>
-
-      <div *ngIf="visaReminderErrorMessage" class="document-message document-error">
-        {{ visaReminderErrorMessage }}
-      </div>
-
-      <div *ngIf="visaReminderSuccessMessage" class="document-message document-success">
-        {{ visaReminderSuccessMessage }}
-      </div>
-
-      <div *ngIf="visaReminderFormVisible" class="document-form">
-        <div class="document-form-header">
-          <div>
-            <h3>{{ editingVisaReminderId ? 'Edit Reminder' : 'Add Reminder' }}</h3>
-            <p>Record visa dates and whether the client has been contacted.</p>
-          </div>
-
-          <button type="button" class="close-form-btn" (click)="closeVisaReminderForm()">x</button>
-        </div>
-
-        <form #visaReminderForm="ngForm" (ngSubmit)="saveVisaReminder()">
-          <div class="document-form-grid">
-            <div class="form-group">
-              <label for="visa_granted_date">Granted Date</label>
-              <input id="visa_granted_date" name="visa_granted_date" type="date" [(ngModel)]="visaReminderData.visa_granted_date" />
-            </div>
-
-            <div class="form-group">
-              <label for="visa_expiry_date">Expiry Date <span class="required">*</span></label>
-              <input id="visa_expiry_date" name="visa_expiry_date" type="date" [(ngModel)]="visaReminderData.visa_expiry_date" required />
-            </div>
-
-            <div class="form-group">
-              <label for="reminder_date">Reminder Date <span class="required">*</span></label>
-              <input id="reminder_date" name="reminder_date" type="date" [(ngModel)]="visaReminderData.reminder_date" required />
-            </div>
-
-            <div class="form-group checkbox-group">
-              <label>
-                <input type="checkbox" name="client_contacted" [(ngModel)]="visaReminderData.client_contacted" />
-                Client contacted
-              </label>
-            </div>
-
-            <div class="form-group full-width">
-              <label for="visa_reminder_notes">Notes</label>
-              <textarea id="visa_reminder_notes" name="visa_reminder_notes" rows="3" [(ngModel)]="visaReminderData.notes"></textarea>
-            </div>
-          </div>
-
-          <div class="document-form-actions">
-            <button type="button" class="cancel-document-btn" (click)="closeVisaReminderForm()" [disabled]="visaReminderSaving">Cancel</button>
-            <button type="submit" class="save-document-btn" [disabled]="visaReminderSaving || visaReminderForm.invalid">
-              {{ visaReminderSaving ? 'Saving...' : editingVisaReminderId ? 'Save Changes' : 'Add Reminder' }}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Granted Date</th>
-            <th>Expiry Date</th>
-            <th>Reminder Date</th>
-            <th>Client Contacted</th>
-            <th>Notes</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr *ngFor="let reminder of profile.visa_reminders">
-            <td>{{ reminder.visa_granted_date || 'N/A' }}</td>
-            <td>{{ reminder.visa_expiry_date || 'N/A' }}</td>
-            <td>{{ reminder.reminder_date || 'N/A' }}</td>
-            <td>{{ reminder.client_contacted ? 'Yes' : 'No' }}</td>
-            <td>{{ reminder.notes || 'N/A' }}</td>
-            <td>
-              <div class="row-actions">
-                <button type="button" class="row-edit-btn" (click)="editVisaReminder(reminder)">Edit</button>
-                <button type="button" class="row-delete-btn" (click)="deleteVisaReminder(reminder)">Delete</button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      </div>
-
-      <div *ngIf="!profile.visa_reminders || profile.visa_reminders.length === 0" class="empty-state">
-        No visa reminders found.
-      </div>
-    </div>
+    <app-case-visa-reminders-section
+      [profile]="profile"
+      [caseId]="caseId"
+      (profileChanged)="profileChanged.emit()"
+    ></app-case-visa-reminders-section>
 
     <app-case-notes-section
       [profile]="profile"
