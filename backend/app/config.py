@@ -8,6 +8,12 @@ def parse_bool(value, default=False):
     if value is None:
         return default
 
+    if isinstance(value, bool):
+        return value
+
+    if isinstance(value, int):
+        return value != 0
+
     return value.strip().lower() in {
         "1",
         "true",
