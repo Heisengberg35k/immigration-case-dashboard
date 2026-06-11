@@ -1,19 +1,34 @@
+import { vi } from 'vitest';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 
-import { MainLayout } from './main-layout';
+import { AuthService } from '../../core/services/auth';
+import { MainLayoutComponent } from './main-layout';
 
-describe('MainLayout', () => {
-  let component: MainLayout;
-  let fixture: ComponentFixture<MainLayout>;
+describe('MainLayoutComponent', () => {
+  let component: MainLayoutComponent;
+  let fixture: ComponentFixture<MainLayoutComponent>;
+
+  const authService = {
+    getUser: vi.fn().mockReturnValue({
+      email: 'admin@firm.com',
+      role: 'admin'
+    }),
+    logout: vi.fn(),
+    hasAnyRole: vi.fn().mockReturnValue(true)
+  };
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainLayout],
+      imports: [MainLayoutComponent],
+      providers: [
+        { provide: AuthService, useValue: authService },
+        provideRouter([])
+      ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MainLayout);
+    fixture = TestBed.createComponent(MainLayoutComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
   });
 
   it('should create', () => {
