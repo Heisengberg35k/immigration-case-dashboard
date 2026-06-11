@@ -1,0 +1,115 @@
+<div class="section-card">
+  <div class="section-title-row">
+    <div>
+      <h2>Appointments</h2>
+      <p class="section-description">
+        Track consultations, biometrics, calls and meetings.
+      </p>
+    </div>
+
+    <button type="button" class="add-record-btn" (click)="showAddAppointmentForm()">
+      Add Appointment
+    </button>
+  </div>
+
+  <div *ngIf="appointmentErrorMessage" class="document-message document-error">
+    {{ appointmentErrorMessage }}
+  </div>
+
+  <div *ngIf="appointmentSuccessMessage" class="document-message document-success">
+    {{ appointmentSuccessMessage }}
+  </div>
+
+  <div *ngIf="appointmentFormVisible" class="document-form">
+    <div class="document-form-header">
+      <div>
+        <h3>{{ editingAppointmentId ? 'Edit Appointment' : 'Add Appointment' }}</h3>
+        <p>Record an appointment date, type, status and location.</p>
+      </div>
+
+      <button type="button" class="close-form-btn" (click)="closeAppointmentForm()">x</button>
+    </div>
+
+    <form #appointmentForm="ngForm" (ngSubmit)="saveAppointment()">
+      <div class="document-form-grid">
+        <div class="form-group">
+          <label for="appointment_type">Type</label>
+          <input id="appointment_type" name="appointment_type" type="text" [(ngModel)]="appointmentData.appointment_type" placeholder="Example: Biometrics" />
+        </div>
+
+        <div class="form-group">
+          <label for="appointment_date">Date <span class="required">*</span></label>
+          <input id="appointment_date" name="appointment_date" type="date" [(ngModel)]="appointmentData.appointment_date" required />
+        </div>
+
+        <div class="form-group">
+          <label for="appointment_time">Time</label>
+          <input id="appointment_time" name="appointment_time" type="time" [(ngModel)]="appointmentData.appointment_time" />
+        </div>
+
+        <div class="form-group">
+          <label for="appointment_status">Status</label>
+          <select id="appointment_status" name="appointment_status" [(ngModel)]="appointmentData.status">
+            <option value="Booked">Booked</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+            <option value="Rescheduled">Rescheduled</option>
+            <option value="Missed">Missed</option>
+          </select>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="appointment_location">Location</label>
+          <input id="appointment_location" name="appointment_location" type="text" [(ngModel)]="appointmentData.appointment_location" placeholder="Office, phone, video, or external address" />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="appointment_notes">Notes</label>
+          <textarea id="appointment_notes" name="appointment_notes" rows="3" [(ngModel)]="appointmentData.notes"></textarea>
+        </div>
+      </div>
+
+      <div class="document-form-actions">
+        <button type="button" class="cancel-document-btn" (click)="closeAppointmentForm()" [disabled]="appointmentSaving">Cancel</button>
+        <button type="submit" class="save-document-btn" [disabled]="appointmentSaving || appointmentForm.invalid">
+          {{ appointmentSaving ? 'Saving...' : editingAppointmentId ? 'Save Changes' : 'Add Appointment' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Status</th>
+          <th>Location</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let appointment of profile.appointments">
+          <td>{{ appointment.appointment_type || appointment.title || 'N/A' }}</td>
+          <td>{{ appointment.appointment_date || 'N/A' }}</td>
+          <td>{{ appointment.appointment_time || 'N/A' }}</td>
+          <td>{{ appointment.status || 'N/A' }}</td>
+          <td>{{ appointment.appointment_location || appointment.location || 'N/A' }}</td>
+          <td>
+            <div class="row-actions">
+              <button type="button" class="row-edit-btn" (click)="editAppointment(appointment)">Edit</button>
+              <button type="button" class="row-delete-btn" (click)="deleteAppointment(appointment)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!profile.appointments || profile.appointments.length === 0" class="empty-state">
+    No appointments found.
+  </div>
+</div>

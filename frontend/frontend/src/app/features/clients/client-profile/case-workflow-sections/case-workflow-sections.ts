@@ -2,6 +2,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { CaseAppointmentsSection } from './case-appointments-section/case-appointments-section';
 import { CaseNotesSection } from './case-notes-section/case-notes-section';
 import { CasePaymentsSection } from './case-payments-section/case-payments-section';
 import { CaseVisaRemindersSection } from './case-visa-reminders-section/case-visa-reminders-section';
@@ -13,6 +14,7 @@ import { ApiService } from '../../../../core/services/api';
   imports: [
     CommonModule,
     FormsModule,
+    CaseAppointmentsSection,
     CaseNotesSection,
     CasePaymentsSection,
     CaseVisaRemindersSection
@@ -43,15 +45,9 @@ export class CaseWorkflowSections {
   editingDeadlineId: number | null = null;
   deadlineErrorMessage = '';
   deadlineSuccessMessage = '';
-  appointmentFormVisible = false;
-  appointmentSaving = false;
-  editingAppointmentId: number | null = null;
-  appointmentErrorMessage = '';
-  appointmentSuccessMessage = '';
   documentData = this.getEmptyDocumentData();
   questionnaireData = this.getEmptyQuestionnaireData();
   deadlineData = this.getEmptyDeadlineData();
-  appointmentData = this.getEmptyAppointmentData();
 
   constructor(private apiService: ApiService) {}
 
@@ -86,17 +82,6 @@ export class CaseWorkflowSections {
       deadline_type: '',
       deadline_date: '',
       status: 'Upcoming',
-      notes: ''
-    };
-  }
-
-  getEmptyAppointmentData() {
-    return {
-      appointment_type: '',
-      appointment_date: '',
-      appointment_time: '',
-      appointment_location: '',
-      status: 'Booked',
       notes: ''
     };
   }
@@ -737,96 +722,6 @@ export class CaseWorkflowSections {
     this.deadlineData = this.getEmptyDeadlineData();
     this.deadlineErrorMessage = '';
     this.deadlineSuccessMessage = '';
-  }
-
-  showAddAppointmentForm(): void {
-    this.appointmentData = this.getEmptyAppointmentData();
-    this.editingAppointmentId = null;
-    this.appointmentErrorMessage = '';
-    this.appointmentSuccessMessage = '';
-    this.appointmentFormVisible = true;
-  }
-
-  editAppointment(appointment: any): void {
-    this.editingAppointmentId = appointment.id;
-    this.appointmentData = {
-      appointment_type: appointment.appointment_type || appointment.title || '',
-      appointment_date: appointment.appointment_date || '',
-      appointment_time: appointment.appointment_time || '',
-      appointment_location:
-        appointment.appointment_location || appointment.location || '',
-      status: appointment.status || 'Booked',
-      notes: appointment.notes || ''
-    };
-    this.appointmentFormVisible = true;
-  }
-
-  saveAppointment(): void {
-    this.appointmentErrorMessage = '';
-
-    if (!this.appointmentData.appointment_date) {
-      this.appointmentErrorMessage = 'Appointment date is required.';
-      return;
-    }
-
-    this.appointmentSaving = true;
-    const request = this.editingAppointmentId
-      ? this.apiService.updateAppointment(
-          this.editingAppointmentId,
-          this.appointmentData
-        )
-      : this.apiService.createAppointment(
-          this.caseId,
-          this.appointmentData
-        );
-
-    request.subscribe({
-      next: () => {
-        this.appointmentSaving = false;
-        this.appointmentSuccessMessage = this.editingAppointmentId
-          ? 'Appointment updated successfully.'
-          : 'Appointment added successfully.';
-        this.profileChanged.emit();
-        setTimeout(() => this.closeAppointmentForm(), 700);
-      },
-      error: (error: any) => {
-        console.error('Save appointment error:', error);
-        this.appointmentSaving = false;
-        this.appointmentErrorMessage =
-          error?.error?.message || 'Could not save the appointment.';
-      }
-    });
-  }
-
-  deleteAppointment(appointment: any): void {
-    const confirmed = window.confirm('Delete this appointment?');
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.appointmentErrorMessage = '';
-    this.appointmentSuccessMessage = '';
-
-    this.apiService.deleteAppointment(appointment.id).subscribe({
-      next: () => {
-        this.appointmentSuccessMessage = 'Appointment deleted successfully.';
-        this.profileChanged.emit();
-      },
-      error: (error: any) => {
-        console.error('Delete appointment error:', error);
-        this.appointmentErrorMessage =
-          error?.error?.message || 'Could not delete the appointment.';
-      }
-    });
-  }
-
-  closeAppointmentForm(): void {
-    this.appointmentFormVisible = false;
-    this.editingAppointmentId = null;
-    this.appointmentData = this.getEmptyAppointmentData();
-    this.appointmentErrorMessage = '';
-    this.appointmentSuccessMessage = '';
   }
 
 }
