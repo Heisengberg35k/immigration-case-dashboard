@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../../../../core/services/api';
+import { AuthService } from '../../../../../core/services/auth';
 
 @Component({
   selector: 'app-case-visa-reminders-section',
@@ -23,7 +24,10 @@ export class CaseVisaRemindersSection {
 
   visaReminderData = this.getEmptyVisaReminderData();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   getEmptyVisaReminderData() {
     return {
@@ -98,6 +102,12 @@ export class CaseVisaRemindersSection {
   }
 
   deleteVisaReminder(reminder: any): void {
+    if (!this.canDeleteRecords()) {
+      this.visaReminderErrorMessage =
+        'Only admins and solicitors can delete visa reminders.';
+      return;
+    }
+
     const confirmed = window.confirm('Delete this visa reminder?');
 
     if (!confirmed) {
@@ -127,5 +137,12 @@ export class CaseVisaRemindersSection {
     this.visaReminderData = this.getEmptyVisaReminderData();
     this.visaReminderErrorMessage = '';
     this.visaReminderSuccessMessage = '';
+  }
+
+  canDeleteRecords(): boolean {
+    return this.authService.hasAnyRole([
+      'admin',
+      'solicitor'
+    ]);
   }
 }

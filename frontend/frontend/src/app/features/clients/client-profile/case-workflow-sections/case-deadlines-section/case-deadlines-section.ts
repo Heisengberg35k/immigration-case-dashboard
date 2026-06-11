@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../../../../core/services/api';
+import { AuthService } from '../../../../../core/services/auth';
 
 @Component({
   selector: 'app-case-deadlines-section',
@@ -23,7 +24,10 @@ export class CaseDeadlinesSection {
 
   deadlineData = this.getEmptyDeadlineData();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   getEmptyDeadlineData() {
     return {
@@ -164,6 +168,12 @@ export class CaseDeadlinesSection {
   }
 
   deleteDeadline(deadlineItem: any): void {
+    if (!this.canDeleteRecords()) {
+      this.deadlineErrorMessage =
+        'Only admins and solicitors can delete deadlines.';
+      return;
+    }
+
     const deadlineName =
       deadlineItem.deadline_type ||
       deadlineItem.title ||
@@ -208,5 +218,12 @@ export class CaseDeadlinesSection {
     this.deadlineData = this.getEmptyDeadlineData();
     this.deadlineErrorMessage = '';
     this.deadlineSuccessMessage = '';
+  }
+
+  canDeleteRecords(): boolean {
+    return this.authService.hasAnyRole([
+      'admin',
+      'solicitor'
+    ]);
   }
 }

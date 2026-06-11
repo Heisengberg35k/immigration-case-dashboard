@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../../../../core/services/api';
+import { AuthService } from '../../../../../core/services/auth';
 
 @Component({
   selector: 'app-case-payments-section',
@@ -23,7 +24,10 @@ export class CasePaymentsSection {
 
   paymentData = this.getEmptyPaymentData();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   getEmptyPaymentData() {
     return {
@@ -86,6 +90,12 @@ export class CasePaymentsSection {
   }
 
   deletePayment(payment: any): void {
+    if (!this.canDeleteRecords()) {
+      this.paymentErrorMessage =
+        'Only admins and solicitors can delete payment records.';
+      return;
+    }
+
     const confirmed = window.confirm('Delete this payment record?');
 
     if (!confirmed) {
@@ -114,5 +124,12 @@ export class CasePaymentsSection {
     this.paymentData = this.getEmptyPaymentData();
     this.paymentErrorMessage = '';
     this.paymentSuccessMessage = '';
+  }
+
+  canDeleteRecords(): boolean {
+    return this.authService.hasAnyRole([
+      'admin',
+      'solicitor'
+    ]);
   }
 }

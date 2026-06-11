@@ -5,6 +5,7 @@ import { CasePaymentsSection } from './case-payments-section';
 
 describe('CasePaymentsSection', () => {
   let apiService: any;
+  let authService: any;
   let component: CasePaymentsSection;
 
   beforeEach(() => {
@@ -14,7 +15,11 @@ describe('CasePaymentsSection', () => {
       deletePayment: vi.fn().mockReturnValue(of({}))
     };
 
-    component = new CasePaymentsSection(apiService);
+    authService = {
+      hasAnyRole: vi.fn().mockReturnValue(true)
+    };
+
+    component = new CasePaymentsSection(apiService, authService);
     component.caseId = 42;
     component.profile = { payments: [] };
   });
@@ -58,5 +63,15 @@ describe('CasePaymentsSection', () => {
     expect(component.paymentData.payment_status).toBe('Part Paid');
     expect(component.paymentData.next_payment_due).toBe('2026-07-10');
     expect(component.paymentFormVisible).toBe(true);
+  });
+
+  it('should not delete payments for restricted roles', () => {
+    authService.hasAnyRole.mockReturnValue(false);
+
+    component.deletePayment({ id: 1 });
+
+    expect(component.paymentErrorMessage)
+      .toBe('Only admins and solicitors can delete payment records.');
+    expect(apiService.deletePayment).not.toHaveBeenCalled();
   });
 });

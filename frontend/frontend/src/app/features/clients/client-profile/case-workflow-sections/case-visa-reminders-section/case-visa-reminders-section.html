@@ -92,7 +92,14 @@
           <td>
             <div class="row-actions">
               <button type="button" class="row-edit-btn" (click)="editVisaReminder(reminder)">Edit</button>
-              <button type="button" class="row-delete-btn" (click)="deleteVisaReminder(reminder)">Delete</button>
+              <button
+                *ngIf="canDeleteRecords()"
+                type="button"
+                class="row-delete-btn"
+                (click)="deleteVisaReminder(reminder)"
+              >
+                Delete
+              </button>
             </div>
           </td>
         </tr>

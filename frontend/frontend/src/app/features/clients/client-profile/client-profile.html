@@ -19,6 +19,7 @@
       </button>
 
       <button
+        *ngIf="canDeleteClient()"
         type="button"
         class="delete-btn"
         (click)="deleteClient()"

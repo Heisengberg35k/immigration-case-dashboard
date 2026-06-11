@@ -101,7 +101,14 @@
           <td>
             <div class="row-actions">
               <button type="button" class="row-edit-btn" (click)="editAppointment(appointment)">Edit</button>
-              <button type="button" class="row-delete-btn" (click)="deleteAppointment(appointment)">Delete</button>
+              <button
+                *ngIf="canDeleteRecords()"
+                type="button"
+                class="row-delete-btn"
+                (click)="deleteAppointment(appointment)"
+              >
+                Delete
+              </button>
             </div>
           </td>
         </tr>

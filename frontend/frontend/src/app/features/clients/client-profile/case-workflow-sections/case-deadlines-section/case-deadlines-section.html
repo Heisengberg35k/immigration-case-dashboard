@@ -194,6 +194,7 @@
               </button>
 
               <button
+                *ngIf="canDeleteRecords()"
                 type="button"
                 class="row-delete-btn"
                 (click)="deleteDeadline(deadline)"

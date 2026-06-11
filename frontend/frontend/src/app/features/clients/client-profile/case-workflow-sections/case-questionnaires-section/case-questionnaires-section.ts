@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../../../../core/services/api';
+import { AuthService } from '../../../../../core/services/auth';
 
 @Component({
   selector: 'app-case-questionnaires-section',
@@ -23,7 +24,10 @@ export class CaseQuestionnairesSection {
 
   questionnaireData = this.getEmptyQuestionnaireData();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   getEmptyQuestionnaireData() {
     return {
@@ -162,6 +166,12 @@ export class CaseQuestionnairesSection {
   }
 
   deleteQuestionnaire(questionnaireItem: any): void {
+    if (!this.canDeleteRecords()) {
+      this.questionnaireErrorMessage =
+        'Only admins and solicitors can delete questionnaire items.';
+      return;
+    }
+
     const question =
       questionnaireItem.question ||
       'this questionnaire item';
@@ -205,5 +215,12 @@ export class CaseQuestionnairesSection {
     this.questionnaireData = this.getEmptyQuestionnaireData();
     this.questionnaireErrorMessage = '';
     this.questionnaireSuccessMessage = '';
+  }
+
+  canDeleteRecords(): boolean {
+    return this.authService.hasAnyRole([
+      'admin',
+      'solicitor'
+    ]);
   }
 }

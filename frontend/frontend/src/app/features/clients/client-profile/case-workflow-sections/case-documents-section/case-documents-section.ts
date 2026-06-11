@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../../../../core/services/api';
+import { AuthService } from '../../../../../core/services/auth';
 
 @Component({
   selector: 'app-case-documents-section',
@@ -25,7 +26,10 @@ export class CaseDocumentsSection {
 
   documentData = this.getEmptyDocumentData();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   getEmptyDocumentData() {
     return {
@@ -287,6 +291,12 @@ export class CaseDocumentsSection {
   }
 
   deleteDocument(documentItem: any): void {
+    if (!this.canDeleteRecords()) {
+      this.documentErrorMessage =
+        'Only admins and solicitors can delete documents.';
+      return;
+    }
+
     const documentName =
       documentItem.document_name ||
       'this document';
@@ -331,5 +341,12 @@ export class CaseDocumentsSection {
     this.documentData = this.getEmptyDocumentData();
     this.documentErrorMessage = '';
     this.documentSuccessMessage = '';
+  }
+
+  canDeleteRecords(): boolean {
+    return this.authService.hasAnyRole([
+      'admin',
+      'solicitor'
+    ]);
   }
 }

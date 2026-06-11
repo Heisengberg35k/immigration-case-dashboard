@@ -5,6 +5,7 @@ import { CaseDocumentsSection } from './case-documents-section';
 
 describe('CaseDocumentsSection', () => {
   let apiService: any;
+  let authService: any;
   let component: CaseDocumentsSection;
 
   beforeEach(() => {
@@ -21,7 +22,11 @@ describe('CaseDocumentsSection', () => {
         .mockReturnValue(of(new Blob(['test'], { type: 'text/plain' })))
     };
 
-    component = new CaseDocumentsSection(apiService);
+    authService = {
+      hasAnyRole: vi.fn().mockReturnValue(true)
+    };
+
+    component = new CaseDocumentsSection(apiService, authService);
     component.caseId = 42;
     component.profile = { documents: [] };
   });
@@ -61,5 +66,15 @@ describe('CaseDocumentsSection', () => {
       .toBe('Document name is required.');
     expect(apiService.createDocument).not.toHaveBeenCalled();
     expect(apiService.uploadDocument).not.toHaveBeenCalled();
+  });
+
+  it('should not delete documents for restricted roles', () => {
+    authService.hasAnyRole.mockReturnValue(false);
+
+    component.deleteDocument({ id: 1, document_name: 'Passport' });
+
+    expect(component.documentErrorMessage)
+      .toBe('Only admins and solicitors can delete documents.');
+    expect(apiService.deleteDocument).not.toHaveBeenCalled();
   });
 });

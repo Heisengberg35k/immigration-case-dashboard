@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { ApiService } from '../../../core/services/api';
+import { AuthService } from '../../../core/services/auth';
 import { ClientProfile } from './client-profile';
 
 describe('ClientProfile', () => {
@@ -26,6 +27,10 @@ describe('ClientProfile', () => {
     navigate: vi.fn()
   };
 
+  const authService = {
+    hasAnyRole: vi.fn().mockReturnValue(true)
+  };
+
   const route = {
     snapshot: {
       paramMap: {
@@ -39,6 +44,7 @@ describe('ClientProfile', () => {
       imports: [ClientProfile],
       providers: [
         { provide: ApiService, useValue: apiService },
+        { provide: AuthService, useValue: authService },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: route }
       ]
@@ -53,5 +59,11 @@ describe('ClientProfile', () => {
     expect(component).toBeTruthy();
     expect(component.caseId).toBe(10);
     expect(apiService.getCaseFullProfile).toHaveBeenCalledWith(10);
+  });
+
+  it('should only allow admins and solicitors to delete clients', () => {
+    authService.hasAnyRole.mockReturnValue(false);
+
+    expect(component.canDeleteClient()).toBe(false);
   });
 });

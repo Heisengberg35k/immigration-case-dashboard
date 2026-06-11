@@ -5,6 +5,7 @@ import { CaseNotesSection } from './case-notes-section';
 
 describe('CaseNotesSection', () => {
   let apiService: any;
+  let authService: any;
   let component: CaseNotesSection;
 
   beforeEach(() => {
@@ -14,7 +15,11 @@ describe('CaseNotesSection', () => {
       deleteNote: vi.fn().mockReturnValue(of({}))
     };
 
-    component = new CaseNotesSection(apiService);
+    authService = {
+      hasAnyRole: vi.fn().mockReturnValue(true)
+    };
+
+    component = new CaseNotesSection(apiService, authService);
     component.caseId = 42;
     component.profile = { notes: [] };
   });
@@ -61,5 +66,15 @@ describe('CaseNotesSection', () => {
     expect(component.editingNoteId).toBe(15);
     expect(component.noteData.note_text).toBe('Existing note.');
     expect(component.noteFormVisible).toBe(true);
+  });
+
+  it('should not delete notes for restricted roles', () => {
+    authService.hasAnyRole.mockReturnValue(false);
+
+    component.deleteNote({ id: 1 });
+
+    expect(component.noteErrorMessage)
+      .toBe('Only admins and solicitors can delete notes.');
+    expect(apiService.deleteNote).not.toHaveBeenCalled();
   });
 });

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { CaseWorkflowSections } from './case-workflow-sections/case-workflow-sections';
 import { ApiService } from '../../../core/services/api';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-client-profile',
@@ -29,7 +30,8 @@ export class ClientProfile implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -117,6 +119,12 @@ export class ClientProfile implements OnInit {
   }
 
   deleteClient(): void {
+    if (!this.canDeleteClient()) {
+      this.errorMessage =
+        'Only admins and solicitors can delete clients.';
+      return;
+    }
+
     const clientName =
       this.profile?.client?.full_name ||
       'this client';
@@ -155,5 +163,12 @@ export class ClientProfile implements OnInit {
 
   goBack(): void {
     this.router.navigate(['/clients']);
+  }
+
+  canDeleteClient(): boolean {
+    return this.authService.hasAnyRole([
+      'admin',
+      'solicitor'
+    ]);
   }
 }

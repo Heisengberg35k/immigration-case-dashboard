@@ -5,6 +5,7 @@ import { CaseAppointmentsSection } from './case-appointments-section';
 
 describe('CaseAppointmentsSection', () => {
   let apiService: any;
+  let authService: any;
   let component: CaseAppointmentsSection;
 
   beforeEach(() => {
@@ -14,7 +15,11 @@ describe('CaseAppointmentsSection', () => {
       deleteAppointment: vi.fn().mockReturnValue(of({}))
     };
 
-    component = new CaseAppointmentsSection(apiService);
+    authService = {
+      hasAnyRole: vi.fn().mockReturnValue(true)
+    };
+
+    component = new CaseAppointmentsSection(apiService, authService);
     component.caseId = 42;
     component.profile = { appointments: [] };
   });
@@ -65,5 +70,15 @@ describe('CaseAppointmentsSection', () => {
     expect(component.appointmentData.appointment_type).toBe('Biometrics');
     expect(component.appointmentData.appointment_location).toBe('TLS Centre');
     expect(component.appointmentFormVisible).toBe(true);
+  });
+
+  it('should not delete appointments for restricted roles', () => {
+    authService.hasAnyRole.mockReturnValue(false);
+
+    component.deleteAppointment({ id: 1 });
+
+    expect(component.appointmentErrorMessage)
+      .toBe('Only admins and solicitors can delete appointments.');
+    expect(apiService.deleteAppointment).not.toHaveBeenCalled();
   });
 });

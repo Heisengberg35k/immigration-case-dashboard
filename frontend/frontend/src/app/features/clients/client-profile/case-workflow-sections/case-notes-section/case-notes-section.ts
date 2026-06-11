@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../../../../core/services/api';
+import { AuthService } from '../../../../../core/services/auth';
 
 @Component({
   selector: 'app-case-notes-section',
@@ -23,7 +24,10 @@ export class CaseNotesSection {
 
   noteData = this.getEmptyNoteData();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   getEmptyNoteData() {
     return {
@@ -79,6 +83,12 @@ export class CaseNotesSection {
   }
 
   deleteNote(note: any): void {
+    if (!this.canDeleteRecords()) {
+      this.noteErrorMessage =
+        'Only admins and solicitors can delete notes.';
+      return;
+    }
+
     const confirmed = window.confirm('Delete this note?');
 
     if (!confirmed) {
@@ -107,5 +117,12 @@ export class CaseNotesSection {
     this.noteData = this.getEmptyNoteData();
     this.noteErrorMessage = '';
     this.noteSuccessMessage = '';
+  }
+
+  canDeleteRecords(): boolean {
+    return this.authService.hasAnyRole([
+      'admin',
+      'solicitor'
+    ]);
   }
 }

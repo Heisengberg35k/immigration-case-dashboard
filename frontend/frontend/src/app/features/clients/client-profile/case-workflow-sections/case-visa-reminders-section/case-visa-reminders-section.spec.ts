@@ -5,6 +5,7 @@ import { CaseVisaRemindersSection } from './case-visa-reminders-section';
 
 describe('CaseVisaRemindersSection', () => {
   let apiService: any;
+  let authService: any;
   let component: CaseVisaRemindersSection;
 
   beforeEach(() => {
@@ -14,7 +15,11 @@ describe('CaseVisaRemindersSection', () => {
       deleteVisaReminder: vi.fn().mockReturnValue(of({}))
     };
 
-    component = new CaseVisaRemindersSection(apiService);
+    authService = {
+      hasAnyRole: vi.fn().mockReturnValue(true)
+    };
+
+    component = new CaseVisaRemindersSection(apiService, authService);
     component.caseId = 42;
     component.profile = { visa_reminders: [] };
   });
@@ -64,5 +69,15 @@ describe('CaseVisaRemindersSection', () => {
     expect(component.visaReminderErrorMessage)
       .toBe('Reminder date is required.');
     expect(apiService.createVisaReminder).not.toHaveBeenCalled();
+  });
+
+  it('should not delete visa reminders for restricted roles', () => {
+    authService.hasAnyRole.mockReturnValue(false);
+
+    component.deleteVisaReminder({ id: 1 });
+
+    expect(component.visaReminderErrorMessage)
+      .toBe('Only admins and solicitors can delete visa reminders.');
+    expect(apiService.deleteVisaReminder).not.toHaveBeenCalled();
   });
 });

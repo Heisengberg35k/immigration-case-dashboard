@@ -5,6 +5,7 @@ import { CaseDeadlinesSection } from './case-deadlines-section';
 
 describe('CaseDeadlinesSection', () => {
   let apiService: any;
+  let authService: any;
   let component: CaseDeadlinesSection;
 
   beforeEach(() => {
@@ -14,7 +15,11 @@ describe('CaseDeadlinesSection', () => {
       deleteDeadline: vi.fn().mockReturnValue(of({}))
     };
 
-    component = new CaseDeadlinesSection(apiService);
+    authService = {
+      hasAnyRole: vi.fn().mockReturnValue(true)
+    };
+
+    component = new CaseDeadlinesSection(apiService, authService);
     component.caseId = 42;
     component.profile = { deadlines: [] };
   });
@@ -64,5 +69,15 @@ describe('CaseDeadlinesSection', () => {
     expect(component.deadlineErrorMessage)
       .toBe('Deadline date is required.');
     expect(apiService.createDeadline).not.toHaveBeenCalled();
+  });
+
+  it('should not delete deadlines for restricted roles', () => {
+    authService.hasAnyRole.mockReturnValue(false);
+
+    component.deleteDeadline({ id: 1, deadline_type: 'Upload Deadline' });
+
+    expect(component.deadlineErrorMessage)
+      .toBe('Only admins and solicitors can delete deadlines.');
+    expect(apiService.deleteDeadline).not.toHaveBeenCalled();
   });
 });

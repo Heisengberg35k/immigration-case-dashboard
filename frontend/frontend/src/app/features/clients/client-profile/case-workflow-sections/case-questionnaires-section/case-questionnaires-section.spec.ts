@@ -5,6 +5,7 @@ import { CaseQuestionnairesSection } from './case-questionnaires-section';
 
 describe('CaseQuestionnairesSection', () => {
   let apiService: any;
+  let authService: any;
   let component: CaseQuestionnairesSection;
 
   beforeEach(() => {
@@ -14,7 +15,11 @@ describe('CaseQuestionnairesSection', () => {
       deleteQuestionnaire: vi.fn().mockReturnValue(of({}))
     };
 
-    component = new CaseQuestionnairesSection(apiService);
+    authService = {
+      hasAnyRole: vi.fn().mockReturnValue(true)
+    };
+
+    component = new CaseQuestionnairesSection(apiService, authService);
     component.caseId = 42;
     component.profile = { questionnaires: [] };
   });
@@ -65,5 +70,15 @@ describe('CaseQuestionnairesSection', () => {
     expect(component.questionnaireData.client_answer).toBe('Confirmed');
     expect(component.questionnaireData.follow_up_needed).toBe(true);
     expect(component.questionnaireFormVisible).toBe(true);
+  });
+
+  it('should not delete questionnaire items for restricted roles', () => {
+    authService.hasAnyRole.mockReturnValue(false);
+
+    component.deleteQuestionnaire({ id: 1, question: 'Question?' });
+
+    expect(component.questionnaireErrorMessage)
+      .toBe('Only admins and solicitors can delete questionnaire items.');
+    expect(apiService.deleteQuestionnaire).not.toHaveBeenCalled();
   });
 });

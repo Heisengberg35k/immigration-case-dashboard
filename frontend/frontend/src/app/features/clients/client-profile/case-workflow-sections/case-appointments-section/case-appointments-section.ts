@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ApiService } from '../../../../../core/services/api';
+import { AuthService } from '../../../../../core/services/auth';
 
 @Component({
   selector: 'app-case-appointments-section',
@@ -23,7 +24,10 @@ export class CaseAppointmentsSection {
 
   appointmentData = this.getEmptyAppointmentData();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   getEmptyAppointmentData() {
     return {
@@ -96,6 +100,12 @@ export class CaseAppointmentsSection {
   }
 
   deleteAppointment(appointment: any): void {
+    if (!this.canDeleteRecords()) {
+      this.appointmentErrorMessage =
+        'Only admins and solicitors can delete appointments.';
+      return;
+    }
+
     const confirmed = window.confirm('Delete this appointment?');
 
     if (!confirmed) {
@@ -124,5 +134,12 @@ export class CaseAppointmentsSection {
     this.appointmentData = this.getEmptyAppointmentData();
     this.appointmentErrorMessage = '';
     this.appointmentSuccessMessage = '';
+  }
+
+  canDeleteRecords(): boolean {
+    return this.authService.hasAnyRole([
+      'admin',
+      'solicitor'
+    ]);
   }
 }
