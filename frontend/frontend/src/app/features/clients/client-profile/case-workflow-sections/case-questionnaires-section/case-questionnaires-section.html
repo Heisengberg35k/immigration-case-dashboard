@@ -1,0 +1,262 @@
+<div class="section-card">
+  <div class="section-title-row">
+    <div>
+      <h2>Questionnaires</h2>
+      <p class="section-description">
+        Track client questions, answers and follow-ups.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="add-record-btn"
+      (click)="showAddQuestionnaireForm()"
+    >
+      Add Question
+    </button>
+  </div>
+
+  <div
+    *ngIf="questionnaireErrorMessage"
+    class="document-message document-error"
+  >
+    {{ questionnaireErrorMessage }}
+  </div>
+
+  <div
+    *ngIf="questionnaireSuccessMessage"
+    class="document-message document-success"
+  >
+    {{ questionnaireSuccessMessage }}
+  </div>
+
+  <div
+    *ngIf="questionnaireFormVisible"
+    id="questionnaire-form"
+    class="document-form"
+  >
+    <div class="document-form-header">
+      <div>
+        <h3>
+          {{
+            editingQuestionnaireId
+              ? 'Edit Question'
+              : 'Add Question'
+          }}
+        </h3>
+
+        <p>
+          Record a question, answer and follow-up status.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="close-form-btn"
+        (click)="closeQuestionnaireForm()"
+      >
+        x
+      </button>
+    </div>
+
+    <form
+      #questionnaireForm="ngForm"
+      (ngSubmit)="saveQuestionnaire()"
+    >
+      <div class="document-form-grid">
+        <div class="form-group full-width">
+          <label for="questionnaire_question">
+            Question
+            <span class="required">*</span>
+          </label>
+
+          <textarea
+            id="questionnaire_question"
+            name="questionnaire_question"
+            rows="3"
+            [(ngModel)]="questionnaireData.question"
+            placeholder="Example: Please confirm your last UK entry date."
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="questionnaire_answer">
+            Client Answer
+          </label>
+
+          <textarea
+            id="questionnaire_answer"
+            name="questionnaire_answer"
+            rows="3"
+            [(ngModel)]="questionnaireData.client_answer"
+            placeholder="Record the client's answer"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="questionnaire_status">
+            Status
+          </label>
+
+          <select
+            id="questionnaire_status"
+            name="questionnaire_status"
+            [(ngModel)]="questionnaireData.status"
+          >
+            <option value="Not Asked">Not Asked</option>
+            <option value="Asked">Asked</option>
+            <option value="Answered">Answered</option>
+            <option value="Unclear">Unclear</option>
+            <option value="Still Missing">Still Missing</option>
+            <option value="Confirmed">Confirmed</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="questionnaire_asked_date">
+            Asked Date
+          </label>
+
+          <input
+            id="questionnaire_asked_date"
+            name="questionnaire_asked_date"
+            type="date"
+            [(ngModel)]="questionnaireData.asked_date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="questionnaire_answered_date">
+            Answered Date
+          </label>
+
+          <input
+            id="questionnaire_answered_date"
+            name="questionnaire_answered_date"
+            type="date"
+            [(ngModel)]="questionnaireData.answered_date"
+          />
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input
+              type="checkbox"
+              name="questionnaire_follow_up_needed"
+              [(ngModel)]="questionnaireData.follow_up_needed"
+            />
+
+            Follow-up needed
+          </label>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="questionnaire_notes">
+            Notes
+          </label>
+
+          <textarea
+            id="questionnaire_notes"
+            name="questionnaire_notes"
+            rows="3"
+            [(ngModel)]="questionnaireData.notes"
+            placeholder="Add internal notes"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="document-form-actions">
+        <button
+          type="button"
+          class="cancel-document-btn"
+          (click)="closeQuestionnaireForm()"
+          [disabled]="questionnaireSaving"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="save-document-btn"
+          [disabled]="questionnaireSaving || questionnaireForm.invalid"
+        >
+          {{
+            questionnaireSaving
+              ? 'Saving...'
+              : editingQuestionnaireId
+                ? 'Save Changes'
+                : 'Add Question'
+          }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Answer</th>
+          <th>Status</th>
+          <th>Asked</th>
+          <th>Answered</th>
+          <th>Follow Up</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let q of profile.questionnaires">
+          <td>{{ q.question || 'N/A' }}</td>
+          <td>{{ q.client_answer || q.answer || 'N/A' }}</td>
+          <td>
+            <span
+              class="document-status"
+              [class.status-complete]="
+                q.status === 'Answered' ||
+                q.status === 'Confirmed'
+              "
+              [class.status-warning]="
+                q.status === 'Asked' ||
+                q.status === 'Unclear' ||
+                q.status === 'Still Missing'
+              "
+            >
+              {{ q.status || 'N/A' }}
+            </span>
+          </td>
+          <td>{{ q.asked_date || 'N/A' }}</td>
+          <td>{{ q.answered_date || 'N/A' }}</td>
+          <td>{{ q.follow_up_needed ? 'Yes' : 'No' }}</td>
+          <td>{{ q.notes || 'N/A' }}</td>
+          <td>
+            <div class="row-actions">
+              <button
+                type="button"
+                class="row-edit-btn"
+                (click)="editQuestionnaire(q)"
+              >
+                Edit
+              </button>
+
+              <button
+                type="button"
+                class="row-delete-btn"
+                (click)="deleteQuestionnaire(q)"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!profile.questionnaires || profile.questionnaires.length === 0" class="empty-state">
+    No questionnaires found.
+  </div>
+</div>
