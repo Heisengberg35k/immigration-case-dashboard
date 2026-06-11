@@ -1,0 +1,80 @@
+<div class="section-card">
+  <div class="section-title-row">
+    <div>
+      <h2>Notes</h2>
+      <p class="section-description">
+        Keep internal case notes and activity updates.
+      </p>
+    </div>
+
+    <button type="button" class="add-record-btn" (click)="showAddNoteForm()">
+      Add Note
+    </button>
+  </div>
+
+  <div *ngIf="noteErrorMessage" class="document-message document-error">
+    {{ noteErrorMessage }}
+  </div>
+
+  <div *ngIf="noteSuccessMessage" class="document-message document-success">
+    {{ noteSuccessMessage }}
+  </div>
+
+  <div *ngIf="noteFormVisible" class="document-form">
+    <div class="document-form-header">
+      <div>
+        <h3>{{ editingNoteId ? 'Edit Note' : 'Add Note' }}</h3>
+        <p>Record an internal update for this case.</p>
+      </div>
+
+      <button type="button" class="close-form-btn" (click)="closeNoteForm()">x</button>
+    </div>
+
+    <form #noteForm="ngForm" (ngSubmit)="saveNote()">
+      <div class="document-form-grid">
+        <div class="form-group full-width">
+          <label for="note_text">Note <span class="required">*</span></label>
+          <textarea id="note_text" name="note_text" rows="4" [(ngModel)]="noteData.note_text" required></textarea>
+        </div>
+      </div>
+
+      <div class="document-form-actions">
+        <button type="button" class="cancel-document-btn" (click)="closeNoteForm()" [disabled]="noteSaving">Cancel</button>
+        <button type="submit" class="save-document-btn" [disabled]="noteSaving || noteForm.invalid">
+          {{ noteSaving ? 'Saving...' : editingNoteId ? 'Save Changes' : 'Add Note' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Note</th>
+          <th>Created</th>
+          <th>User</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let note of profile.notes">
+          <td>{{ note.note_text || 'N/A' }}</td>
+          <td>{{ note.created_at || 'N/A' }}</td>
+          <td>{{ note.user_id || 'N/A' }}</td>
+          <td>
+            <div class="row-actions">
+              <button type="button" class="row-edit-btn" (click)="editNote(note)">Edit</button>
+              <button type="button" class="row-delete-btn" (click)="deleteNote(note)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!profile.notes || profile.notes.length === 0" class="empty-state">
+    No notes found.
+  </div>
+</div>

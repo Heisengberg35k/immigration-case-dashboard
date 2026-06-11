@@ -2,12 +2,13 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { CaseNotesSection } from './case-notes-section/case-notes-section';
 import { ApiService } from '../../../../core/services/api';
 
 @Component({
   selector: 'app-case-workflow-sections',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CaseNotesSection],
   templateUrl: './case-workflow-sections.html'
 })
 export class CaseWorkflowSections {
@@ -49,19 +50,12 @@ export class CaseWorkflowSections {
   editingVisaReminderId: number | null = null;
   visaReminderErrorMessage = '';
   visaReminderSuccessMessage = '';
-  noteFormVisible = false;
-  noteSaving = false;
-  editingNoteId: number | null = null;
-  noteErrorMessage = '';
-  noteSuccessMessage = '';
-
   documentData = this.getEmptyDocumentData();
   questionnaireData = this.getEmptyQuestionnaireData();
   deadlineData = this.getEmptyDeadlineData();
   appointmentData = this.getEmptyAppointmentData();
   paymentData = this.getEmptyPaymentData();
   visaReminderData = this.getEmptyVisaReminderData();
-  noteData = this.getEmptyNoteData();
 
   constructor(private apiService: ApiService) {}
 
@@ -128,12 +122,6 @@ export class CaseWorkflowSections {
       reminder_date: '',
       client_contacted: false,
       notes: ''
-    };
-  }
-
-  getEmptyNoteData() {
-    return {
-      note_text: ''
     };
   }
 
@@ -1038,84 +1026,6 @@ export class CaseWorkflowSections {
     this.visaReminderData = this.getEmptyVisaReminderData();
     this.visaReminderErrorMessage = '';
     this.visaReminderSuccessMessage = '';
-  }
-
-  showAddNoteForm(): void {
-    this.noteData = this.getEmptyNoteData();
-    this.editingNoteId = null;
-    this.noteErrorMessage = '';
-    this.noteSuccessMessage = '';
-    this.noteFormVisible = true;
-  }
-
-  editNote(note: any): void {
-    this.editingNoteId = note.id;
-    this.noteData = {
-      note_text: note.note_text || ''
-    };
-    this.noteFormVisible = true;
-  }
-
-  saveNote(): void {
-    this.noteErrorMessage = '';
-
-    if (!this.noteData.note_text.trim()) {
-      this.noteErrorMessage = 'Note text is required.';
-      return;
-    }
-
-    this.noteSaving = true;
-    const request = this.editingNoteId
-      ? this.apiService.updateNote(this.editingNoteId, this.noteData)
-      : this.apiService.createNote(this.caseId, this.noteData);
-
-    request.subscribe({
-      next: () => {
-        this.noteSaving = false;
-        this.noteSuccessMessage = this.editingNoteId
-          ? 'Note updated successfully.'
-          : 'Note added successfully.';
-        this.profileChanged.emit();
-        setTimeout(() => this.closeNoteForm(), 700);
-      },
-      error: (error: any) => {
-        console.error('Save note error:', error);
-        this.noteSaving = false;
-        this.noteErrorMessage =
-          error?.error?.message || 'Could not save the note.';
-      }
-    });
-  }
-
-  deleteNote(note: any): void {
-    const confirmed = window.confirm('Delete this note?');
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.noteErrorMessage = '';
-    this.noteSuccessMessage = '';
-
-    this.apiService.deleteNote(note.id).subscribe({
-      next: () => {
-        this.noteSuccessMessage = 'Note deleted successfully.';
-        this.profileChanged.emit();
-      },
-      error: (error: any) => {
-        console.error('Delete note error:', error);
-        this.noteErrorMessage =
-          error?.error?.message || 'Could not delete the note.';
-      }
-    });
-  }
-
-  closeNoteForm(): void {
-    this.noteFormVisible = false;
-    this.editingNoteId = null;
-    this.noteData = this.getEmptyNoteData();
-    this.noteErrorMessage = '';
-    this.noteSuccessMessage = '';
   }
 
 }
