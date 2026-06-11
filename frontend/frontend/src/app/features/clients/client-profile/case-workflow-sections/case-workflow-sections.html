@@ -1,0 +1,1311 @@
+﻿    <div class="section-card">
+  <div class="section-title-row">
+    <div>
+      <h2>Documents</h2>
+      <p class="section-description">
+        Track requested, received, checked and uploaded documents.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="add-record-btn"
+      (click)="showAddDocumentForm()"
+    >
+      Add Document
+    </button>
+  </div>
+
+  <div
+    *ngIf="documentErrorMessage"
+    class="document-message document-error"
+  >
+    {{ documentErrorMessage }}
+  </div>
+
+  <div
+    *ngIf="documentSuccessMessage"
+    class="document-message document-success"
+  >
+    {{ documentSuccessMessage }}
+  </div>
+
+  <div
+    *ngIf="documentFormVisible"
+    id="document-form"
+    class="document-form"
+  >
+    <div class="document-form-header">
+      <div>
+        <h3>
+          {{
+            editingDocumentId
+              ? 'Edit Document'
+              : 'Add Document'
+          }}
+        </h3>
+
+        <p>
+          Add document tracking details for this case.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="close-form-btn"
+        (click)="closeDocumentForm()"
+      >
+        x
+      </button>
+    </div>
+
+    <form
+      #documentForm="ngForm"
+      (ngSubmit)="saveDocument()"
+    >
+      <div class="document-form-grid">
+        <div class="form-group full-width">
+          <label for="document_name">
+            Document Name
+            <span class="required">*</span>
+          </label>
+
+          <input
+            id="document_name"
+            name="document_name"
+            type="text"
+            [(ngModel)]="documentData.document_name"
+            placeholder="Example: Passport"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="document_status">
+            Status
+          </label>
+
+          <select
+            id="document_status"
+            name="document_status"
+            [(ngModel)]="documentData.status"
+          >
+            <option value="Requested">
+              Requested
+            </option>
+
+            <option value="Received">
+              Received
+            </option>
+
+            <option value="Renamed">
+              Renamed
+            </option>
+
+            <option value="Checked">
+              Checked
+            </option>
+
+            <option value="Missing">
+              Missing
+            </option>
+
+            <option value="Needs Rescan">
+              Needs Rescan
+            </option>
+
+            <option value="Uploaded">
+              Uploaded
+            </option>
+
+            <option value="Not Required">
+              Not Required
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="document_source">
+            Source
+          </label>
+
+          <select
+            id="document_source"
+            name="document_source"
+            [(ngModel)]="documentData.source"
+          >
+            <option value="">
+              Select source
+            </option>
+
+            <option value="WhatsApp">
+              WhatsApp
+            </option>
+
+            <option value="Email">
+              Email
+            </option>
+
+            <option value="Physical">
+              Physical
+            </option>
+
+            <option value="Scanned">
+              Scanned
+            </option>
+
+            <option value="Client Portal">
+              Client Portal
+            </option>
+
+            <option value="Other">
+              Other
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="received_date">
+            Received Date
+          </label>
+
+          <input
+            id="received_date"
+            name="received_date"
+            type="date"
+            [(ngModel)]="documentData.received_date"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="checked_by">
+            Checked By
+          </label>
+
+          <input
+            id="checked_by"
+            name="checked_by"
+            type="text"
+            [(ngModel)]="documentData.checked_by"
+            placeholder="Staff member name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="file_name">
+            File Name
+          </label>
+
+          <input
+            id="file_name"
+            name="file_name"
+            type="text"
+            [(ngModel)]="documentData.file_name"
+            placeholder="Example: passport_khaled.pdf"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="file_location">
+            File Location
+          </label>
+
+          <input
+            id="file_location"
+            name="file_location"
+            type="text"
+            [(ngModel)]="documentData.file_location"
+            placeholder="Shared Drive / Client / Documents"
+          />
+        </div>
+
+        <div
+          *ngIf="!editingDocumentId"
+          class="form-group"
+        >
+          <label for="document_file">
+            Upload File
+          </label>
+
+          <input
+            id="document_file"
+            name="document_file"
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+            (change)="onDocumentFileSelected($event)"
+          />
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label>
+            <input
+              type="checkbox"
+              name="required"
+              [(ngModel)]="documentData.required"
+            />
+
+            Required document
+          </label>
+        </div>
+
+        <div class="form-group full-width">
+          <label for="document_notes">
+            Notes
+          </label>
+
+          <textarea
+            id="document_notes"
+            name="document_notes"
+            rows="3"
+            [(ngModel)]="documentData.notes"
+            placeholder="Add document notes"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="document-form-actions">
+        <button
+          type="button"
+          class="cancel-document-btn"
+          (click)="closeDocumentForm()"
+          [disabled]="documentSaving"
+        >
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="save-document-btn"
+          [disabled]="
+            documentSaving ||
+            documentForm.invalid
+          "
+        >
+          {{
+            documentSaving
+              ? 'Saving...'
+              : editingDocumentId
+                ? 'Save Changes'
+                : selectedDocumentFile
+                  ? 'Upload Document'
+                  : 'Add Document'
+          }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Required</th>
+          <th>Status</th>
+          <th>Source</th>
+          <th>Received</th>
+          <th>Checked By</th>
+          <th>File Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let doc of profile.documents">
+          <td>
+            {{ doc.document_name || 'N/A' }}
+          </td>
+
+          <td>
+            {{ doc.required ? 'Yes' : 'No' }}
+          </td>
+
+          <td>
+            <span
+              class="document-status"
+              [class.status-complete]="
+                doc.status === 'Checked' ||
+                doc.status === 'Uploaded'
+              "
+              [class.status-warning]="
+                doc.status === 'Requested' ||
+                doc.status === 'Missing' ||
+                doc.status === 'Needs Rescan'
+              "
+            >
+              {{ doc.status || 'N/A' }}
+            </span>
+          </td>
+
+          <td>
+            {{ doc.source || 'N/A' }}
+          </td>
+
+          <td>
+            {{ doc.received_date || 'N/A' }}
+          </td>
+
+          <td>
+            {{ doc.checked_by || 'N/A' }}
+          </td>
+
+          <td>
+            {{ doc.file_name || 'N/A' }}
+          </td>
+
+          <td>
+            <div class="row-actions">
+              <button
+                type="button"
+                class="row-edit-btn"
+                (click)="editDocument(doc)"
+              >
+                Edit
+              </button>
+
+              <button
+                *ngIf="doc.has_uploaded_file"
+                type="button"
+                class="row-view-btn"
+                (click)="viewDocument(doc)"
+                [disabled]="documentDownloadingId === doc.id"
+              >
+                View
+              </button>
+
+              <button
+                *ngIf="doc.has_uploaded_file"
+                type="button"
+                class="row-download-btn"
+                (click)="downloadDocument(doc)"
+                [disabled]="documentDownloadingId === doc.id"
+              >
+                Download
+              </button>
+
+              <button
+                type="button"
+                class="row-delete-btn"
+                (click)="deleteDocument(doc)"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div
+    *ngIf="
+      !profile.documents ||
+      profile.documents.length === 0
+    "
+    class="empty-state"
+  >
+    No documents found.
+  </div>
+</div>
+
+    <div class="section-card">
+      <div class="section-title-row">
+        <div>
+          <h2>Questionnaires</h2>
+          <p class="section-description">
+            Track client questions, answers and follow-ups.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="add-record-btn"
+          (click)="showAddQuestionnaireForm()"
+        >
+          Add Question
+        </button>
+      </div>
+
+      <div
+        *ngIf="questionnaireErrorMessage"
+        class="document-message document-error"
+      >
+        {{ questionnaireErrorMessage }}
+      </div>
+
+      <div
+        *ngIf="questionnaireSuccessMessage"
+        class="document-message document-success"
+      >
+        {{ questionnaireSuccessMessage }}
+      </div>
+
+      <div
+        *ngIf="questionnaireFormVisible"
+        id="questionnaire-form"
+        class="document-form"
+      >
+        <div class="document-form-header">
+          <div>
+            <h3>
+              {{
+                editingQuestionnaireId
+                  ? 'Edit Question'
+                  : 'Add Question'
+              }}
+            </h3>
+
+            <p>
+              Record a question, answer and follow-up status.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="close-form-btn"
+            (click)="closeQuestionnaireForm()"
+          >
+            x
+          </button>
+        </div>
+
+        <form
+          #questionnaireForm="ngForm"
+          (ngSubmit)="saveQuestionnaire()"
+        >
+          <div class="document-form-grid">
+            <div class="form-group full-width">
+              <label for="questionnaire_question">
+                Question
+                <span class="required">*</span>
+              </label>
+
+              <textarea
+                id="questionnaire_question"
+                name="questionnaire_question"
+                rows="3"
+                [(ngModel)]="questionnaireData.question"
+                placeholder="Example: Please confirm your last UK entry date."
+                required
+              ></textarea>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="questionnaire_answer">
+                Client Answer
+              </label>
+
+              <textarea
+                id="questionnaire_answer"
+                name="questionnaire_answer"
+                rows="3"
+                [(ngModel)]="questionnaireData.client_answer"
+                placeholder="Record the client's answer"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="questionnaire_status">
+                Status
+              </label>
+
+              <select
+                id="questionnaire_status"
+                name="questionnaire_status"
+                [(ngModel)]="questionnaireData.status"
+              >
+                <option value="Not Asked">Not Asked</option>
+                <option value="Asked">Asked</option>
+                <option value="Answered">Answered</option>
+                <option value="Unclear">Unclear</option>
+                <option value="Still Missing">Still Missing</option>
+                <option value="Confirmed">Confirmed</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="questionnaire_asked_date">
+                Asked Date
+              </label>
+
+              <input
+                id="questionnaire_asked_date"
+                name="questionnaire_asked_date"
+                type="date"
+                [(ngModel)]="questionnaireData.asked_date"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="questionnaire_answered_date">
+                Answered Date
+              </label>
+
+              <input
+                id="questionnaire_answered_date"
+                name="questionnaire_answered_date"
+                type="date"
+                [(ngModel)]="questionnaireData.answered_date"
+              />
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  name="questionnaire_follow_up_needed"
+                  [(ngModel)]="questionnaireData.follow_up_needed"
+                />
+
+                Follow-up needed
+              </label>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="questionnaire_notes">
+                Notes
+              </label>
+
+              <textarea
+                id="questionnaire_notes"
+                name="questionnaire_notes"
+                rows="3"
+                [(ngModel)]="questionnaireData.notes"
+                placeholder="Add internal notes"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="document-form-actions">
+            <button
+              type="button"
+              class="cancel-document-btn"
+              (click)="closeQuestionnaireForm()"
+              [disabled]="questionnaireSaving"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="save-document-btn"
+              [disabled]="
+                questionnaireSaving ||
+                questionnaireForm.invalid
+              "
+            >
+              {{
+                questionnaireSaving
+                  ? 'Saving...'
+                  : editingQuestionnaireId
+                    ? 'Save Changes'
+                    : 'Add Question'
+              }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Question</th>
+              <th>Answer</th>
+              <th>Status</th>
+              <th>Asked</th>
+              <th>Answered</th>
+              <th>Follow Up</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let q of profile.questionnaires">
+              <td>{{ q.question || 'N/A' }}</td>
+              <td>{{ q.client_answer || q.answer || 'N/A' }}</td>
+              <td>
+                <span
+                  class="document-status"
+                  [class.status-complete]="
+                    q.status === 'Answered' ||
+                    q.status === 'Confirmed'
+                  "
+                  [class.status-warning]="
+                    q.status === 'Asked' ||
+                    q.status === 'Unclear' ||
+                    q.status === 'Still Missing'
+                  "
+                >
+                  {{ q.status || 'N/A' }}
+                </span>
+              </td>
+              <td>{{ q.asked_date || 'N/A' }}</td>
+              <td>{{ q.answered_date || 'N/A' }}</td>
+              <td>{{ q.follow_up_needed ? 'Yes' : 'No' }}</td>
+              <td>{{ q.notes || 'N/A' }}</td>
+              <td>
+                <div class="row-actions">
+                  <button
+                    type="button"
+                    class="row-edit-btn"
+                    (click)="editQuestionnaire(q)"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    class="row-delete-btn"
+                    (click)="deleteQuestionnaire(q)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!profile.questionnaires || profile.questionnaires.length === 0" class="empty-state">
+        No questionnaires found.
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title-row">
+        <div>
+          <h2>Deadlines</h2>
+          <p class="section-description">
+            Track upload, review and case action deadlines.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="add-record-btn"
+          (click)="showAddDeadlineForm()"
+        >
+          Add Deadline
+        </button>
+      </div>
+
+      <div
+        *ngIf="deadlineErrorMessage"
+        class="document-message document-error"
+      >
+        {{ deadlineErrorMessage }}
+      </div>
+
+      <div
+        *ngIf="deadlineSuccessMessage"
+        class="document-message document-success"
+      >
+        {{ deadlineSuccessMessage }}
+      </div>
+
+      <div
+        *ngIf="deadlineFormVisible"
+        id="deadline-form"
+        class="document-form"
+      >
+        <div class="document-form-header">
+          <div>
+            <h3>
+              {{
+                editingDeadlineId
+                  ? 'Edit Deadline'
+                  : 'Add Deadline'
+              }}
+            </h3>
+
+            <p>
+              Record the deadline type, date and current status.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="close-form-btn"
+            (click)="closeDeadlineForm()"
+          >
+            x
+          </button>
+        </div>
+
+        <form
+          #deadlineForm="ngForm"
+          (ngSubmit)="saveDeadline()"
+        >
+          <div class="document-form-grid">
+            <div class="form-group">
+              <label for="deadline_type">
+                Deadline Type
+                <span class="required">*</span>
+              </label>
+
+              <input
+                id="deadline_type"
+                name="deadline_type"
+                type="text"
+                [(ngModel)]="deadlineData.deadline_type"
+                placeholder="Example: Upload Deadline"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="deadline_date">
+                Deadline Date
+                <span class="required">*</span>
+              </label>
+
+              <input
+                id="deadline_date"
+                name="deadline_date"
+                type="date"
+                [(ngModel)]="deadlineData.deadline_date"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="deadline_status">
+                Status
+              </label>
+
+              <select
+                id="deadline_status"
+                name="deadline_status"
+                [(ngModel)]="deadlineData.status"
+              >
+                <option value="Upcoming">Upcoming</option>
+                <option value="Due Soon">Due Soon</option>
+                <option value="Overdue">Overdue</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="deadline_notes">
+                Notes
+              </label>
+
+              <textarea
+                id="deadline_notes"
+                name="deadline_notes"
+                rows="3"
+                [(ngModel)]="deadlineData.notes"
+                placeholder="Add deadline notes"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="document-form-actions">
+            <button
+              type="button"
+              class="cancel-document-btn"
+              (click)="closeDeadlineForm()"
+              [disabled]="deadlineSaving"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              class="save-document-btn"
+              [disabled]="
+                deadlineSaving ||
+                deadlineForm.invalid
+              "
+            >
+              {{
+                deadlineSaving
+                  ? 'Saving...'
+                  : editingDeadlineId
+                    ? 'Save Changes'
+                    : 'Add Deadline'
+              }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let deadline of profile.deadlines">
+              <td>{{ deadline.deadline_type || deadline.title || 'N/A' }}</td>
+              <td>{{ deadline.deadline_date || deadline.due_date || 'N/A' }}</td>
+              <td>
+                <span
+                  class="document-status"
+                  [class.status-complete]="
+                    deadline.status === 'Completed'
+                  "
+                  [class.status-warning]="
+                    deadline.status === 'Due Soon' ||
+                    deadline.status === 'Overdue'
+                  "
+                >
+                  {{ deadline.status || 'N/A' }}
+                </span>
+              </td>
+              <td>{{ deadline.notes || 'N/A' }}</td>
+              <td>
+                <div class="row-actions">
+                  <button
+                    type="button"
+                    class="row-edit-btn"
+                    (click)="editDeadline(deadline)"
+                  >
+                    Edit
+                  </button>
+
+                  <button
+                    type="button"
+                    class="row-delete-btn"
+                    (click)="deleteDeadline(deadline)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!profile.deadlines || profile.deadlines.length === 0" class="empty-state">
+        No deadlines found.
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title-row">
+        <div>
+          <h2>Appointments</h2>
+          <p class="section-description">
+            Track consultations, biometrics, calls and meetings.
+          </p>
+        </div>
+
+        <button type="button" class="add-record-btn" (click)="showAddAppointmentForm()">
+          Add Appointment
+        </button>
+      </div>
+
+      <div *ngIf="appointmentErrorMessage" class="document-message document-error">
+        {{ appointmentErrorMessage }}
+      </div>
+
+      <div *ngIf="appointmentSuccessMessage" class="document-message document-success">
+        {{ appointmentSuccessMessage }}
+      </div>
+
+      <div *ngIf="appointmentFormVisible" class="document-form">
+        <div class="document-form-header">
+          <div>
+            <h3>{{ editingAppointmentId ? 'Edit Appointment' : 'Add Appointment' }}</h3>
+            <p>Record an appointment date, type, status and location.</p>
+          </div>
+
+          <button type="button" class="close-form-btn" (click)="closeAppointmentForm()">x</button>
+        </div>
+
+        <form #appointmentForm="ngForm" (ngSubmit)="saveAppointment()">
+          <div class="document-form-grid">
+            <div class="form-group">
+              <label for="appointment_type">Type</label>
+              <input id="appointment_type" name="appointment_type" type="text" [(ngModel)]="appointmentData.appointment_type" placeholder="Example: Biometrics" />
+            </div>
+
+            <div class="form-group">
+              <label for="appointment_date">Date <span class="required">*</span></label>
+              <input id="appointment_date" name="appointment_date" type="date" [(ngModel)]="appointmentData.appointment_date" required />
+            </div>
+
+            <div class="form-group">
+              <label for="appointment_time">Time</label>
+              <input id="appointment_time" name="appointment_time" type="time" [(ngModel)]="appointmentData.appointment_time" />
+            </div>
+
+            <div class="form-group">
+              <label for="appointment_status">Status</label>
+              <select id="appointment_status" name="appointment_status" [(ngModel)]="appointmentData.status">
+                <option value="Booked">Booked</option>
+                <option value="Completed">Completed</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Rescheduled">Rescheduled</option>
+                <option value="Missed">Missed</option>
+              </select>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="appointment_location">Location</label>
+              <input id="appointment_location" name="appointment_location" type="text" [(ngModel)]="appointmentData.appointment_location" placeholder="Office, phone, video, or external address" />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="appointment_notes">Notes</label>
+              <textarea id="appointment_notes" name="appointment_notes" rows="3" [(ngModel)]="appointmentData.notes"></textarea>
+            </div>
+          </div>
+
+          <div class="document-form-actions">
+            <button type="button" class="cancel-document-btn" (click)="closeAppointmentForm()" [disabled]="appointmentSaving">Cancel</button>
+            <button type="submit" class="save-document-btn" [disabled]="appointmentSaving || appointmentForm.invalid">
+              {{ appointmentSaving ? 'Saving...' : editingAppointmentId ? 'Save Changes' : 'Add Appointment' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Location</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let appointment of profile.appointments">
+            <td>{{ appointment.appointment_type || appointment.title || 'N/A' }}</td>
+            <td>{{ appointment.appointment_date || 'N/A' }}</td>
+            <td>{{ appointment.appointment_time || 'N/A' }}</td>
+            <td>{{ appointment.status || 'N/A' }}</td>
+            <td>{{ appointment.appointment_location || appointment.location || 'N/A' }}</td>
+            <td>
+              <div class="row-actions">
+                <button type="button" class="row-edit-btn" (click)="editAppointment(appointment)">Edit</button>
+                <button type="button" class="row-delete-btn" (click)="deleteAppointment(appointment)">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div *ngIf="!profile.appointments || profile.appointments.length === 0" class="empty-state">
+        No appointments found.
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title-row">
+        <div>
+          <h2>Payments</h2>
+          <p class="section-description">
+            Track fees, balances and next payment dates.
+          </p>
+        </div>
+
+        <button type="button" class="add-record-btn" (click)="showAddPaymentForm()">
+          Add Payment
+        </button>
+      </div>
+
+      <div *ngIf="paymentErrorMessage" class="document-message document-error">
+        {{ paymentErrorMessage }}
+      </div>
+
+      <div *ngIf="paymentSuccessMessage" class="document-message document-success">
+        {{ paymentSuccessMessage }}
+      </div>
+
+      <div *ngIf="paymentFormVisible" class="document-form">
+        <div class="document-form-header">
+          <div>
+            <h3>{{ editingPaymentId ? 'Edit Payment' : 'Add Payment' }}</h3>
+            <p>Record fee amounts and payment status.</p>
+          </div>
+
+          <button type="button" class="close-form-btn" (click)="closePaymentForm()">x</button>
+        </div>
+
+        <form #paymentForm="ngForm" (ngSubmit)="savePayment()">
+          <div class="document-form-grid">
+            <div class="form-group">
+              <label for="total_fee">Total Fee</label>
+              <input id="total_fee" name="total_fee" type="number" min="0" step="0.01" [(ngModel)]="paymentData.total_fee" />
+            </div>
+
+            <div class="form-group">
+              <label for="amount_paid">Amount Paid</label>
+              <input id="amount_paid" name="amount_paid" type="number" min="0" step="0.01" [(ngModel)]="paymentData.amount_paid" />
+            </div>
+
+            <div class="form-group">
+              <label for="payment_status">Status</label>
+              <select id="payment_status" name="payment_status" [(ngModel)]="paymentData.payment_status">
+                <option value="">Auto calculate</option>
+                <option value="Paid">Paid</option>
+                <option value="Part Paid">Part Paid</option>
+                <option value="Overdue">Overdue</option>
+                <option value="Payment Plan">Payment Plan</option>
+                <option value="No Payment Required">No Payment Required</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="next_payment_due">Next Payment Due</label>
+              <input id="next_payment_due" name="next_payment_due" type="date" [(ngModel)]="paymentData.next_payment_due" />
+            </div>
+
+            <div class="form-group full-width">
+              <label for="payment_notes">Notes</label>
+              <textarea id="payment_notes" name="payment_notes" rows="3" [(ngModel)]="paymentData.notes"></textarea>
+            </div>
+          </div>
+
+          <div class="document-form-actions">
+            <button type="button" class="cancel-document-btn" (click)="closePaymentForm()" [disabled]="paymentSaving">Cancel</button>
+            <button type="submit" class="save-document-btn" [disabled]="paymentSaving || paymentForm.invalid">
+              {{ paymentSaving ? 'Saving...' : editingPaymentId ? 'Save Changes' : 'Add Payment' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Total Fee</th>
+            <th>Paid</th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th>Next Payment</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let payment of profile.payments">
+            <td>GBP {{ payment.total_fee || 0 }}</td>
+            <td>GBP {{ payment.amount_paid || 0 }}</td>
+            <td>GBP {{ payment.balance_due || 0 }}</td>
+            <td>{{ payment.payment_status || payment.status || 'N/A' }}</td>
+            <td>{{ payment.next_payment_due || payment.next_payment_date || 'N/A' }}</td>
+            <td>
+              <div class="row-actions">
+                <button type="button" class="row-edit-btn" (click)="editPayment(payment)">Edit</button>
+                <button type="button" class="row-delete-btn" (click)="deletePayment(payment)">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div *ngIf="!profile.payments || profile.payments.length === 0" class="empty-state">
+        No payment records found.
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title-row">
+        <div>
+          <h2>Visa Reminders</h2>
+          <p class="section-description">
+            Track visa expiry dates and renewal follow-up.
+          </p>
+        </div>
+
+        <button type="button" class="add-record-btn" (click)="showAddVisaReminderForm()">
+          Add Reminder
+        </button>
+      </div>
+
+      <div *ngIf="visaReminderErrorMessage" class="document-message document-error">
+        {{ visaReminderErrorMessage }}
+      </div>
+
+      <div *ngIf="visaReminderSuccessMessage" class="document-message document-success">
+        {{ visaReminderSuccessMessage }}
+      </div>
+
+      <div *ngIf="visaReminderFormVisible" class="document-form">
+        <div class="document-form-header">
+          <div>
+            <h3>{{ editingVisaReminderId ? 'Edit Reminder' : 'Add Reminder' }}</h3>
+            <p>Record visa dates and whether the client has been contacted.</p>
+          </div>
+
+          <button type="button" class="close-form-btn" (click)="closeVisaReminderForm()">x</button>
+        </div>
+
+        <form #visaReminderForm="ngForm" (ngSubmit)="saveVisaReminder()">
+          <div class="document-form-grid">
+            <div class="form-group">
+              <label for="visa_granted_date">Granted Date</label>
+              <input id="visa_granted_date" name="visa_granted_date" type="date" [(ngModel)]="visaReminderData.visa_granted_date" />
+            </div>
+
+            <div class="form-group">
+              <label for="visa_expiry_date">Expiry Date <span class="required">*</span></label>
+              <input id="visa_expiry_date" name="visa_expiry_date" type="date" [(ngModel)]="visaReminderData.visa_expiry_date" required />
+            </div>
+
+            <div class="form-group">
+              <label for="reminder_date">Reminder Date <span class="required">*</span></label>
+              <input id="reminder_date" name="reminder_date" type="date" [(ngModel)]="visaReminderData.reminder_date" required />
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" name="client_contacted" [(ngModel)]="visaReminderData.client_contacted" />
+                Client contacted
+              </label>
+            </div>
+
+            <div class="form-group full-width">
+              <label for="visa_reminder_notes">Notes</label>
+              <textarea id="visa_reminder_notes" name="visa_reminder_notes" rows="3" [(ngModel)]="visaReminderData.notes"></textarea>
+            </div>
+          </div>
+
+          <div class="document-form-actions">
+            <button type="button" class="cancel-document-btn" (click)="closeVisaReminderForm()" [disabled]="visaReminderSaving">Cancel</button>
+            <button type="submit" class="save-document-btn" [disabled]="visaReminderSaving || visaReminderForm.invalid">
+              {{ visaReminderSaving ? 'Saving...' : editingVisaReminderId ? 'Save Changes' : 'Add Reminder' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Granted Date</th>
+            <th>Expiry Date</th>
+            <th>Reminder Date</th>
+            <th>Client Contacted</th>
+            <th>Notes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let reminder of profile.visa_reminders">
+            <td>{{ reminder.visa_granted_date || 'N/A' }}</td>
+            <td>{{ reminder.visa_expiry_date || 'N/A' }}</td>
+            <td>{{ reminder.reminder_date || 'N/A' }}</td>
+            <td>{{ reminder.client_contacted ? 'Yes' : 'No' }}</td>
+            <td>{{ reminder.notes || 'N/A' }}</td>
+            <td>
+              <div class="row-actions">
+                <button type="button" class="row-edit-btn" (click)="editVisaReminder(reminder)">Edit</button>
+                <button type="button" class="row-delete-btn" (click)="deleteVisaReminder(reminder)">Delete</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div *ngIf="!profile.visa_reminders || profile.visa_reminders.length === 0" class="empty-state">
+        No visa reminders found.
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title-row">
+        <div>
+          <h2>Notes</h2>
+          <p class="section-description">
+            Keep internal case notes and activity updates.
+          </p>
+        </div>
+
+        <button type="button" class="add-record-btn" (click)="showAddNoteForm()">
+          Add Note
+        </button>
+      </div>
+
+      <div *ngIf="noteErrorMessage" class="document-message document-error">
+        {{ noteErrorMessage }}
+      </div>
+
+      <div *ngIf="noteSuccessMessage" class="document-message document-success">
+        {{ noteSuccessMessage }}
+      </div>
+
+      <div *ngIf="noteFormVisible" class="document-form">
+        <div class="document-form-header">
+          <div>
+            <h3>{{ editingNoteId ? 'Edit Note' : 'Add Note' }}</h3>
+            <p>Record an internal update for this case.</p>
+          </div>
+
+          <button type="button" class="close-form-btn" (click)="closeNoteForm()">x</button>
+        </div>
+
+        <form #noteForm="ngForm" (ngSubmit)="saveNote()">
+          <div class="document-form-grid">
+            <div class="form-group full-width">
+              <label for="note_text">Note <span class="required">*</span></label>
+              <textarea id="note_text" name="note_text" rows="4" [(ngModel)]="noteData.note_text" required></textarea>
+            </div>
+          </div>
+
+          <div class="document-form-actions">
+            <button type="button" class="cancel-document-btn" (click)="closeNoteForm()" [disabled]="noteSaving">Cancel</button>
+            <button type="submit" class="save-document-btn" [disabled]="noteSaving || noteForm.invalid">
+              {{ noteSaving ? 'Saving...' : editingNoteId ? 'Save Changes' : 'Add Note' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Note</th>
+              <th>Created</th>
+              <th>User</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let note of profile.notes">
+              <td>{{ note.note_text || 'N/A' }}</td>
+              <td>{{ note.created_at || 'N/A' }}</td>
+              <td>{{ note.user_id || 'N/A' }}</td>
+              <td>
+                <div class="row-actions">
+                  <button type="button" class="row-edit-btn" (click)="editNote(note)">Edit</button>
+                  <button type="button" class="row-delete-btn" (click)="deleteNote(note)">Delete</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!profile.notes || profile.notes.length === 0" class="empty-state">
+        No notes found.
+      </div>
+    </div>
+
