@@ -18,6 +18,7 @@ from .audit.routes import audit_bp
 from .reports.routes import reports_bp
 from .users.routes import users_bp
 from .cases.routes import cases_bp
+from .firm.routes import firm_bp
 
 
 def create_app():
@@ -55,6 +56,7 @@ def create_app():
     app.register_blueprint(audit_bp, url_prefix="/api")
     app.register_blueprint(reports_bp, url_prefix="/api/reports")
     app.register_blueprint(users_bp, url_prefix="/api")
+    app.register_blueprint(firm_bp, url_prefix="/api")
 
     @app.route("/api/health", methods=["GET"])
     def health_check():

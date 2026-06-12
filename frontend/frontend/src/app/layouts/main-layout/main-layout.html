@@ -36,12 +36,12 @@
       </a>
     </nav>
 
-    <nav
-      *ngIf="canViewAuditLog() || canManageUsers()"
-      class="secondary-nav"
-      aria-label="Administration"
-    >
+    <nav class="secondary-nav" aria-label="Administration">
       <span class="nav-section-label">Administration</span>
+      <a routerLink="/firm-settings" title="Firm Settings">
+        <span class="nav-icon" aria-hidden="true">F</span>
+        <span class="nav-label">Firm Settings</span>
+      </a>
       <a
         *ngIf="canViewAuditLog()"
         routerLink="/audit-log"

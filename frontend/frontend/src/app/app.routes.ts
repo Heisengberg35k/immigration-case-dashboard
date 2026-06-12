@@ -9,6 +9,7 @@ import { ClientProfile } from './features/clients/client-profile/client-profile'
 import { Reports } from './features/reports/reports';
 import { AuditLog } from './features/admin/audit-log/audit-log';
 import { Users } from './features/admin/users/users';
+import { FirmSettings } from './features/admin/firm-settings/firm-settings';
 import { MainLayoutComponent } from './layouts/main-layout/main-layout';
 import { authGuard } from './core/guards/auth-guard';
 
@@ -60,6 +61,14 @@ export const routes: Routes = [
         canActivate: [authGuard],
         data: {
           roles: ['admin']
+        }
+      },
+      {
+        path: 'firm-settings',
+        component: FirmSettings,
+        canActivate: [authGuard],
+        data: {
+          roles: ['admin', 'solicitor', 'staff']
         }
       },
       {

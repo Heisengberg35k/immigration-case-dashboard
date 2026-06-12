@@ -67,7 +67,7 @@ def make_user(role, firm):
     user = User(
         firm_id=firm.id,
         name=f"{role.title()} User",
-        email=f"{role}@firm.test",
+        email=f"{role}-{firm.id}@firm.test",
         password_hash=password_hash,
         role=role,
     )
@@ -455,3 +455,49 @@ def test_dashboard_and_reports_only_count_user_firm(app, client):
     assert reports["totals"]["cases"] == 1
     assert reports["totals"]["documents"] == 1
     assert reports["totals"]["payments"] == 1
+
+
+def test_users_can_read_their_own_firm(app, client):
+    firm_a = make_firm("Firm A")
+    firm_b = make_firm("Firm B")
+    user_a = make_user("staff", firm_a)
+    make_user("staff", firm_b)
+
+    response = client.get(
+        "/api/firm",
+        headers=auth_headers(app, user_a),
+    )
+
+    payload = response.get_json()
+    assert response.status_code == 200
+    assert payload["firm"]["id"] == firm_a.id
+    assert payload["firm"]["name"] == "Firm A"
+
+
+def test_admin_can_update_own_firm(app, client):
+    firm_a = make_firm("Firm A")
+    admin = make_user("admin", firm_a)
+
+    response = client.put(
+        "/api/firm",
+        json={"name": "Renamed Firm"},
+        headers=auth_headers(app, admin),
+    )
+
+    payload = response.get_json()
+    assert response.status_code == 200
+    assert payload["firm"]["id"] == firm_a.id
+    assert payload["firm"]["name"] == "Renamed Firm"
+
+
+def test_staff_cannot_update_firm(app, client):
+    firm_a = make_firm("Firm A")
+    staff = make_user("staff", firm_a)
+
+    response = client.put(
+        "/api/firm",
+        json={"name": "Blocked Rename"},
+        headers=auth_headers(app, staff),
+    )
+
+    assert response.status_code == 403

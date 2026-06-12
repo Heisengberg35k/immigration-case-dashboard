@@ -1,0 +1,75 @@
+<div class="firm-settings-page">
+  <div class="page-header">
+    <div>
+      <h1>Firm Settings</h1>
+      <p>Manage the firm account attached to this workspace</p>
+    </div>
+
+    <button type="button" (click)="loadFirm()">
+      Refresh
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Loading firm settings...
+  </div>
+
+  <div *ngIf="errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="!loading && firm" class="settings-grid">
+    <section class="settings-card">
+      <h2>Firm Account</h2>
+      <p>
+        This name appears in the account context for users within the firm.
+      </p>
+
+      <form (ngSubmit)="saveFirm()">
+        <div class="form-group">
+          <label for="firmName">Firm Name</label>
+          <input
+            id="firmName"
+            name="firmName"
+            type="text"
+            [(ngModel)]="firmName"
+            [disabled]="!canManageFirm() || saving"
+            required
+          />
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="!canManageFirm() || saving"
+          >
+            {{ saving ? 'Saving...' : 'Save Firm Settings' }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="settings-card secondary">
+      <h2>Account Details</h2>
+      <dl>
+        <div>
+          <dt>Firm ID</dt>
+          <dd>{{ firm.id }}</dd>
+        </div>
+        <div>
+          <dt>Created</dt>
+          <dd>{{ firm.created_at || 'N/A' }}</dd>
+        </div>
+      </dl>
+
+      <p *ngIf="!canManageFirm()" class="notice">
+        Only administrators can update firm settings.
+      </p>
+    </section>
+  </div>
+</div>
