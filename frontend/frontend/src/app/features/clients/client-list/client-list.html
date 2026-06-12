@@ -31,6 +31,63 @@
     *ngIf="!loading && !errorMessage"
     class="table-card"
   >
+    <div class="client-controls">
+      <div class="control-group search-control">
+        <label for="clientSearch">Search</label>
+        <input
+          id="clientSearch"
+          type="search"
+          name="clientSearch"
+          [(ngModel)]="searchTerm"
+          placeholder="Name, email, phone, case type"
+        />
+      </div>
+
+      <div class="control-group">
+        <label for="statusFilter">Status</label>
+        <select
+          id="statusFilter"
+          name="statusFilter"
+          [(ngModel)]="statusFilter"
+        >
+          <option value="">All statuses</option>
+          <option
+            *ngFor="let status of statusOptions"
+            [value]="status"
+          >
+            {{ status }}
+          </option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="sortBy">Sort</label>
+        <select
+          id="sortBy"
+          name="sortBy"
+          [(ngModel)]="sortBy"
+        >
+          <option value="nameAsc">Name A-Z</option>
+          <option value="nameDesc">Name Z-A</option>
+          <option value="deadlineAsc">Deadline earliest</option>
+          <option value="deadlineDesc">Deadline latest</option>
+          <option value="statusAsc">Status A-Z</option>
+        </select>
+      </div>
+
+      <button
+        type="button"
+        class="clear-filters-btn"
+        (click)="clearFilters()"
+      >
+        Clear
+      </button>
+    </div>
+
+    <div class="result-count">
+      Showing {{ filteredClients.length }} of {{ clients.length }} clients
+    </div>
+
     <table>
       <thead>
         <tr>
@@ -45,7 +102,7 @@
       </thead>
 
       <tbody>
-        <tr *ngFor="let client of clients">
+        <tr *ngFor="let client of filteredClients">
           <td>
             {{ client.full_name || 'N/A' }}
           </td>
@@ -94,10 +151,10 @@
     </table>
 
     <div
-      *ngIf="clients.length === 0"
+      *ngIf="filteredClients.length === 0"
       class="empty-state"
     >
-      No clients found.
+      No clients match the current filters.
     </div>
   </div>
 </div>
