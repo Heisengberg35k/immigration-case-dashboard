@@ -23,17 +23,19 @@ from app.models import (
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
-    monkeypatch.setenv("AUTO_CREATE_TABLES", "false")
-    monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
-    monkeypatch.setenv("JWT_SECRET_KEY", "test-secret")
     monkeypatch.setenv("UPLOAD_FOLDER", str(tmp_path / "uploads"))
 
-    test_app = create_app()
-    test_app.config.update(
-        TESTING=True,
-        SQLALCHEMY_DATABASE_URI="sqlite:///:memory:",
-        SECRET_KEY="test-secret-key-that-is-long-enough",
+    test_app = create_app(
+        {
+            "AUTO_CREATE_TABLES": False,
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "SECRET_KEY": "test-secret-key-that-is-long-enough",
+            "UPLOAD_FOLDER": str(tmp_path / "uploads"),
+        }
     )
+
+    assert test_app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite://")
 
     with test_app.app_context():
         db.create_all()
