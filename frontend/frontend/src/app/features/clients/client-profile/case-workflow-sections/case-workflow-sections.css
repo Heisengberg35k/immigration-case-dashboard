@@ -3,6 +3,11 @@
   grid-template-columns: 230px minmax(0, 1fr);
   gap: 18px;
   align-items: start;
+  transition: grid-template-columns 160ms ease;
+}
+
+.case-workspace.case-sidebar-collapsed {
+  grid-template-columns: 74px minmax(0, 1fr);
 }
 
 .case-section-sidebar {
@@ -16,6 +21,10 @@
 }
 
 .case-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
   padding: 2px 4px 13px;
   margin-bottom: 10px;
   border-bottom: 1px solid var(--line);
@@ -33,6 +42,35 @@
   color: var(--ink-500);
 }
 
+.case-sidebar-toggle {
+  min-width: 36px;
+  padding: 6px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 4px;
+  background: var(--paper-soft);
+  color: var(--ink-800);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.case-sidebar-toggle:hover {
+  background: var(--paper-muted);
+}
+
+.case-sidebar-collapsed .case-section-sidebar {
+  padding-inline: 10px;
+}
+
+.case-sidebar-collapsed .case-section-title {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.case-sidebar-collapsed .case-section-copy,
+.case-sidebar-collapsed .case-section-label {
+  display: none;
+}
+
 .case-section-link {
   width: 100%;
   display: flex;
@@ -46,6 +84,11 @@
   cursor: pointer;
   text-align: left;
   font-weight: 700;
+}
+
+.case-sidebar-collapsed .case-section-link {
+  justify-content: center;
+  padding-inline: 6px;
 }
 
 .case-section-link:hover {

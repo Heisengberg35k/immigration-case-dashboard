@@ -13,6 +13,12 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid #121416;
+  transition: width 160ms ease;
+}
+
+.sidebar.collapsed {
+  width: 84px;
+  padding-inline: 14px;
 }
 
 .brand-block {
@@ -22,6 +28,24 @@
   padding: 4px 6px 24px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   margin-bottom: 22px;
+}
+
+.sidebar.collapsed .brand-block {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.sidebar.collapsed .brand-copy,
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .nav-section-label,
+.sidebar.collapsed .user-box p,
+.sidebar.collapsed .user-box small,
+.sidebar.collapsed .logout-full {
+  display: none;
+}
+
+.sidebar:not(.collapsed) .logout-short {
+  display: none;
 }
 
 .brand-mark {
@@ -47,6 +71,22 @@
   margin-top: 5px;
   color: #c8c3b8;
   font-size: 13px;
+}
+
+.sidebar-toggle {
+  width: 100%;
+  margin: -8px 0 16px;
+  padding: 7px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e1ddd3;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .primary-nav,
@@ -83,6 +123,11 @@ nav a {
   font-size: 16px;
 }
 
+.sidebar.collapsed nav a {
+  justify-content: center;
+  padding-inline: 8px;
+}
+
 nav a:hover {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.14);
@@ -92,15 +137,23 @@ nav a:hover {
 .nav-icon {
   display: grid;
   place-items: center;
-  width: 22px;
+  width: 26px;
+  min-width: 26px;
+  height: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: #d6cab7;
-  font-size: 15px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .user-box {
   margin-top: auto;
   border-top: 1px solid rgba(255, 255, 255, 0.14);
   padding: 18px 6px 0;
+}
+
+.sidebar.collapsed .user-box {
+  padding-inline: 0;
 }
 
 .user-box p {

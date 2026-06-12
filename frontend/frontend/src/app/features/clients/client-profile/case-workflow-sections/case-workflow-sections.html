@@ -1,8 +1,23 @@
-<div class="case-workspace">
+<div
+  class="case-workspace"
+  [class.case-sidebar-collapsed]="sidebarCollapsed"
+>
   <aside class="case-section-sidebar" aria-label="Case sections">
     <div class="case-section-title">
-      <span>Case Options</span>
-      <small>Client workspace</small>
+      <div class="case-section-copy">
+        <span>Case Options</span>
+        <small>Client workspace</small>
+      </div>
+
+      <button
+        type="button"
+        class="case-sidebar-toggle"
+        (click)="toggleSidebar()"
+        [attr.aria-expanded]="!sidebarCollapsed"
+        aria-label="Toggle case options"
+      >
+        <span aria-hidden="true">{{ sidebarCollapsed ? '>>' : '<<' }}</span>
+      </button>
     </div>
 
     <button
@@ -13,7 +28,7 @@
       (click)="selectSection(section.id)"
     >
       <span class="case-section-mark">{{ section.mark }}</span>
-      <span>{{ section.label }}</span>
+      <span class="case-section-label">{{ section.label }}</span>
     </button>
   </aside>
 

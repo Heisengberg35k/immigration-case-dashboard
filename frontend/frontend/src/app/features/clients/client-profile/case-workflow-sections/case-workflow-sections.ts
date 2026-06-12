@@ -31,6 +31,7 @@ export class CaseWorkflowSections {
   @Output() profileChanged = new EventEmitter<void>();
 
   activeSection = 'documents';
+  sidebarCollapsed = false;
 
   sections = [
     { id: 'documents', label: 'Documents', mark: 'I' },
@@ -44,5 +45,9 @@ export class CaseWorkflowSections {
 
   selectSection(sectionId: string): void {
     this.activeSection = sectionId;
+  }
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 }

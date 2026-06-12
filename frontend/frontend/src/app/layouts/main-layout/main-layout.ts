@@ -12,6 +12,7 @@ import { AuthService } from '../../core/services/auth';
 })
 export class MainLayoutComponent {
   user: any;
+  sidebarCollapsed = false;
 
   constructor(private authService: AuthService) {
     this.user = this.authService.getUser();
@@ -19,6 +20,10 @@ export class MainLayoutComponent {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
   }
 
   canViewAuditLog(): boolean {
