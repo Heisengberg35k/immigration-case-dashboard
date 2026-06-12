@@ -12,6 +12,7 @@ def record_audit(
     description=None
 ):
     audit_log = AuditLog(
+        firm_id=user.firm_id if user else None,
         user_id=user.id if user else None,
         action=action,
         entity_type=entity_type,

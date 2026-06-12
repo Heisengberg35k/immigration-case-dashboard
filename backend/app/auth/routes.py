@@ -44,6 +44,7 @@ def register(current_user):
     ).decode("utf-8")
 
     new_user = User(
+        firm_id=current_user.firm_id,
         name=name,
         email=email,
         password_hash=password_hash,
@@ -101,6 +102,7 @@ def login():
     token = jwt.encode(
         {
             "user_id": user.id,
+            "firm_id": user.firm_id,
             "email": user.email,
             "role": user.role,
             "exp": datetime.now(timezone.utc) + timedelta(hours=8)
@@ -122,6 +124,7 @@ def login():
         "token": token,
         "user": {
             "id": user.id,
+            "firm_id": user.firm_id,
             "name": user.name,
             "email": user.email,
             "role": user.role
@@ -134,6 +137,7 @@ def login():
 def profile(current_user):
     return jsonify({
         "id": current_user.id,
+        "firm_id": current_user.firm_id,
         "name": current_user.name,
         "email": current_user.email,
         "role": current_user.role

@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from flask import Blueprint, jsonify
 
-from app.extensions import db
 from app.models import (
-    Case,
     Document,
     Questionnaire,
     Deadline,
@@ -12,6 +10,7 @@ from app.models import (
     VisaReminder
 )
 from app.auth.auth_decorator import token_required
+from app.auth.tenant import case_query_for_user, get_case_for_user
 
 
 dashboard_bp = Blueprint("dashboard", __name__)
@@ -27,8 +26,8 @@ def parse_date(date_text):
         return None
 
 
-def deadline_alert_to_dict(deadline, deadline_date, today):
-    case = db.session.get(Case, deadline.case_id)
+def deadline_alert_to_dict(current_user, deadline, deadline_date, today):
+    case = get_case_for_user(current_user, deadline.case_id)
     client = case.client if case else None
     days_until_due = (deadline_date - today).days
 
@@ -60,24 +59,48 @@ def dashboard_summary(current_user):
     today = datetime.now(timezone.utc).date()
     next_7_days = today + timedelta(days=7)
     next_6_months = today + timedelta(days=183)
+    scoped_cases = case_query_for_user(current_user).all()
+    case_ids = [case.id for case in scoped_cases]
 
-    active_cases = Case.query.filter(
-        Case.case_status.notin_(["Closed", "Visa Granted", "Visa Refused"])
-    ).count()
+    active_cases = sum(
+        1
+        for case in scoped_cases
+        if case.case_status not in ["Closed", "Visa Granted", "Visa Refused"]
+    )
 
-    waiting_documents = Document.query.filter(
-        Document.status.in_(["Requested", "Missing", "Needs Rescan"])
-    ).count()
+    waiting_documents = (
+        Document.query
+        .filter(
+            Document.case_id.in_(case_ids),
+            Document.status.in_(["Requested", "Missing", "Needs Rescan"])
+        )
+        .count()
+        if case_ids
+        else 0
+    )
 
-    waiting_client_answers = Questionnaire.query.filter(
-        Questionnaire.status.in_(["Asked", "Unclear", "Still Missing"])
-    ).count()
+    waiting_client_answers = (
+        Questionnaire.query
+        .filter(
+            Questionnaire.case_id.in_(case_ids),
+            Questionnaire.status.in_(["Asked", "Unclear", "Still Missing"])
+        )
+        .count()
+        if case_ids
+        else 0
+    )
 
-    solicitor_review_pending = Case.query.filter(
-        Case.case_status == "Solicitor Review"
-    ).count()
+    solicitor_review_pending = sum(
+        1
+        for case in scoped_cases
+        if case.case_status == "Solicitor Review"
+    )
 
-    all_deadlines = Deadline.query.all()
+    all_deadlines = (
+        Deadline.query.filter(Deadline.case_id.in_(case_ids)).all()
+        if case_ids
+        else []
+    )
     upload_deadlines_this_week = 0
     due_deadlines_today = 0
     overdue_deadlines = 0
@@ -90,12 +113,22 @@ def dashboard_summary(current_user):
             if deadline_date == today:
                 due_deadlines_today += 1
                 deadline_alerts.append(
-                    deadline_alert_to_dict(deadline, deadline_date, today)
+                    deadline_alert_to_dict(
+                        current_user,
+                        deadline,
+                        deadline_date,
+                        today
+                    )
                 )
             elif deadline_date < today:
                 overdue_deadlines += 1
                 deadline_alerts.append(
-                    deadline_alert_to_dict(deadline, deadline_date, today)
+                    deadline_alert_to_dict(
+                        current_user,
+                        deadline,
+                        deadline_date,
+                        today
+                    )
                 )
 
         if (
@@ -106,7 +139,11 @@ def dashboard_summary(current_user):
         ):
             upload_deadlines_this_week += 1
 
-    all_appointments = Appointment.query.all()
+    all_appointments = (
+        Appointment.query.filter(Appointment.case_id.in_(case_ids)).all()
+        if case_ids
+        else []
+    )
     appointments_this_week = 0
 
     for appointment in all_appointments:
@@ -119,11 +156,24 @@ def dashboard_summary(current_user):
         ):
             appointments_this_week += 1
 
-    payments_overdue = Payment.query.filter(
-        Payment.payment_status == "Overdue"
-    ).count()
+    payments_overdue = (
+        Payment.query
+        .filter(
+            Payment.case_id.in_(case_ids),
+            Payment.payment_status == "Overdue"
+        )
+        .count()
+        if case_ids
+        else 0
+    )
 
-    all_visa_reminders = VisaReminder.query.all()
+    all_visa_reminders = (
+        VisaReminder.query
+        .filter(VisaReminder.case_id.in_(case_ids))
+        .all()
+        if case_ids
+        else []
+    )
     visa_renewals_due_soon = 0
 
     for reminder in all_visa_reminders:

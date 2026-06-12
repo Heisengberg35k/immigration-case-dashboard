@@ -13,6 +13,7 @@ def audit_log_to_dict(log):
 
     return {
         "id": log.id,
+        "firm_id": log.firm_id,
         "user_id": log.user_id,
         "user_name": user.name if user else None,
         "user_email": user.email if user else None,
@@ -34,6 +35,7 @@ def audit_log_to_dict(log):
 def get_audit_logs(current_user):
     logs = (
         AuditLog.query
+        .filter_by(firm_id=current_user.firm_id)
         .order_by(AuditLog.id.desc())
         .limit(200)
         .all()

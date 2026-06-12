@@ -1,13 +1,14 @@
 from flask import Blueprint, request, jsonify
 
 from app.extensions import db
-from app.models import Case, Questionnaire
+from app.models import Questionnaire
 from app.auth.auth_decorator import (
     CASE_DELETE_ROLES,
     CASE_WRITE_ROLES,
     roles_required,
     token_required,
 )
+from app.auth.tenant import get_case_for_user, get_case_record_for_user
 
 
 questionnaires_bp = Blueprint("questionnaires", __name__)
@@ -32,7 +33,7 @@ def questionnaire_to_dict(questionnaire):
 @questionnaires_bp.route("/cases/<int:case_id>/questionnaires", methods=["GET"])
 @token_required
 def get_case_questionnaires(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -51,7 +52,7 @@ def get_case_questionnaires(current_user, case_id):
 @questionnaires_bp.route("/cases/<int:case_id>/questionnaires", methods=["POST"])
 @roles_required(*CASE_WRITE_ROLES)
 def create_questionnaire(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -103,7 +104,11 @@ def create_questionnaire(current_user, case_id):
 @questionnaires_bp.route("/questionnaires/<int:questionnaire_id>", methods=["GET"])
 @token_required
 def get_questionnaire(current_user, questionnaire_id):
-    questionnaire = db.session.get(Questionnaire, questionnaire_id)
+    questionnaire = get_case_record_for_user(
+        current_user,
+        Questionnaire,
+        questionnaire_id
+    )
 
     if not questionnaire:
         return jsonify({"message": "Questionnaire item not found"}), 404
@@ -114,7 +119,11 @@ def get_questionnaire(current_user, questionnaire_id):
 @questionnaires_bp.route("/questionnaires/<int:questionnaire_id>", methods=["PUT"])
 @roles_required(*CASE_WRITE_ROLES)
 def update_questionnaire(current_user, questionnaire_id):
-    questionnaire = db.session.get(Questionnaire, questionnaire_id)
+    questionnaire = get_case_record_for_user(
+        current_user,
+        Questionnaire,
+        questionnaire_id
+    )
 
     if not questionnaire:
         return jsonify({"message": "Questionnaire item not found"}), 404
@@ -164,7 +173,11 @@ def update_questionnaire(current_user, questionnaire_id):
 @questionnaires_bp.route("/questionnaires/<int:questionnaire_id>", methods=["DELETE"])
 @roles_required(*CASE_DELETE_ROLES)
 def delete_questionnaire(current_user, questionnaire_id):
-    questionnaire = db.session.get(Questionnaire, questionnaire_id)
+    questionnaire = get_case_record_for_user(
+        current_user,
+        Questionnaire,
+        questionnaire_id
+    )
 
     if not questionnaire:
         return jsonify({"message": "Questionnaire item not found"}), 404

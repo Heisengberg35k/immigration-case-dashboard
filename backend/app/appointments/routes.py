@@ -1,13 +1,14 @@
 from flask import Blueprint, request, jsonify
 
 from app.extensions import db
-from app.models import Case, Appointment
+from app.models import Appointment
 from app.auth.auth_decorator import (
     CASE_DELETE_ROLES,
     CASE_WRITE_ROLES,
     roles_required,
     token_required,
 )
+from app.auth.tenant import get_case_for_user, get_case_record_for_user
 
 
 appointments_bp = Blueprint("appointments", __name__)
@@ -31,7 +32,7 @@ def appointment_to_dict(appointment):
 @appointments_bp.route("/cases/<int:case_id>/appointments", methods=["GET"])
 @token_required
 def get_case_appointments(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -50,7 +51,7 @@ def get_case_appointments(current_user, case_id):
 @appointments_bp.route("/cases/<int:case_id>/appointments", methods=["POST"])
 @roles_required(*CASE_WRITE_ROLES)
 def create_appointment(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -100,7 +101,11 @@ def create_appointment(current_user, case_id):
 @appointments_bp.route("/appointments/<int:appointment_id>", methods=["GET"])
 @token_required
 def get_appointment(current_user, appointment_id):
-    appointment = db.session.get(Appointment, appointment_id)
+    appointment = get_case_record_for_user(
+        current_user,
+        Appointment,
+        appointment_id
+    )
 
     if not appointment:
         return jsonify({"message": "Appointment not found"}), 404
@@ -111,7 +116,11 @@ def get_appointment(current_user, appointment_id):
 @appointments_bp.route("/appointments/<int:appointment_id>", methods=["PUT"])
 @roles_required(*CASE_WRITE_ROLES)
 def update_appointment(current_user, appointment_id):
-    appointment = db.session.get(Appointment, appointment_id)
+    appointment = get_case_record_for_user(
+        current_user,
+        Appointment,
+        appointment_id
+    )
 
     if not appointment:
         return jsonify({"message": "Appointment not found"}), 404
@@ -162,7 +171,11 @@ def update_appointment(current_user, appointment_id):
 @appointments_bp.route("/appointments/<int:appointment_id>", methods=["DELETE"])
 @roles_required(*CASE_DELETE_ROLES)
 def delete_appointment(current_user, appointment_id):
-    appointment = db.session.get(Appointment, appointment_id)
+    appointment = get_case_record_for_user(
+        current_user,
+        Appointment,
+        appointment_id
+    )
 
     if not appointment:
         return jsonify({"message": "Appointment not found"}), 404

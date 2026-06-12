@@ -8,6 +8,7 @@ from app.auth.auth_decorator import (
     roles_required,
     token_required,
 )
+from app.auth.tenant import client_query_for_user, get_client_for_user
 
 
 clients_bp = Blueprint("clients", __name__)
@@ -68,7 +69,11 @@ def client_to_dict(client):
 @clients_bp.route("/clients", methods=["GET"])
 @token_required
 def get_clients(current_user):
-    clients = Client.query.order_by(Client.id.desc()).all()
+    clients = (
+        client_query_for_user(current_user)
+        .order_by(Client.id.desc())
+        .all()
+    )
 
     return jsonify({
         "count": len(clients),
@@ -79,7 +84,7 @@ def get_clients(current_user):
 @clients_bp.route("/clients/<int:client_id>", methods=["GET"])
 @token_required
 def get_client(current_user, client_id):
-    client = db.session.get(Client, client_id)
+    client = get_client_for_user(current_user, client_id)
 
     if not client:
         return jsonify({"message": "Client not found"}), 404
@@ -106,6 +111,7 @@ def create_client(current_user):
         return jsonify({"message": "Application type / case type is required"}), 400
 
     client = Client(
+        firm_id=current_user.firm_id,
         full_name=full_name,
         date_of_birth=data.get("date_of_birth"),
         phone=data.get("phone"),
@@ -143,7 +149,7 @@ def create_client(current_user):
 @clients_bp.route("/clients/<int:client_id>", methods=["PUT"])
 @roles_required(*CASE_WRITE_ROLES)
 def update_client(current_user, client_id):
-    client = db.session.get(Client, client_id)
+    client = get_client_for_user(current_user, client_id)
 
     if not client:
         return jsonify({"message": "Client not found"}), 404
@@ -208,7 +214,7 @@ def update_client(current_user, client_id):
 @clients_bp.route("/clients/<int:client_id>", methods=["DELETE"])
 @roles_required(*CASE_DELETE_ROLES)
 def delete_client(current_user, client_id):
-    client = db.session.get(Client, client_id)
+    client = get_client_for_user(current_user, client_id)
 
     if not client:
         return jsonify({"message": "Client not found"}), 404

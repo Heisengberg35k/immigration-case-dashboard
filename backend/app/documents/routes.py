@@ -5,13 +5,14 @@ from flask import Blueprint, current_app, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 
 from app.extensions import db
-from app.models import Case, Document
+from app.models import Document
 from app.auth.auth_decorator import (
     CASE_DELETE_ROLES,
     CASE_WRITE_ROLES,
     roles_required,
     token_required,
 )
+from app.auth.tenant import get_case_for_user, get_case_record_for_user
 from app.audit.service import record_audit
 
 
@@ -151,7 +152,7 @@ def document_to_dict(document):
 )
 @token_required
 def get_case_documents(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({
@@ -180,7 +181,7 @@ def get_case_documents(current_user, case_id):
 )
 @roles_required(*CASE_WRITE_ROLES)
 def create_document(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({
@@ -229,7 +230,7 @@ def create_document(current_user, case_id):
 )
 @roles_required(*CASE_WRITE_ROLES)
 def upload_document(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({
@@ -310,7 +311,7 @@ def upload_document(current_user, case_id):
 )
 @token_required
 def get_document(current_user, document_id):
-    document = db.session.get(Document, document_id)
+    document = get_case_record_for_user(current_user, Document, document_id)
 
     if not document:
         return jsonify({
@@ -328,7 +329,7 @@ def get_document(current_user, document_id):
 )
 @token_required
 def download_document(current_user, document_id):
-    document = db.session.get(Document, document_id)
+    document = get_case_record_for_user(current_user, Document, document_id)
 
     if not document:
         return jsonify({
@@ -374,7 +375,7 @@ def download_document(current_user, document_id):
 )
 @roles_required(*CASE_WRITE_ROLES)
 def update_document(current_user, document_id):
-    document = db.session.get(Document, document_id)
+    document = get_case_record_for_user(current_user, Document, document_id)
 
     if not document:
         return jsonify({
@@ -423,7 +424,7 @@ def update_document(current_user, document_id):
 )
 @roles_required(*CASE_DELETE_ROLES)
 def delete_document(current_user, document_id):
-    document = db.session.get(Document, document_id)
+    document = get_case_record_for_user(current_user, Document, document_id)
 
     if not document:
         return jsonify({

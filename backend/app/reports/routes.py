@@ -14,6 +14,7 @@ from app.models import (
     VisaReminder
 )
 from app.auth.auth_decorator import token_required
+from app.auth.tenant import case_query_for_user
 
 
 reports_bp = Blueprint("reports", __name__)
@@ -44,13 +45,38 @@ def counter_to_list(counter):
 def reports_overview(current_user):
     today = datetime.now(timezone.utc).date()
 
-    cases = Case.query.all()
-    documents = Document.query.all()
-    deadlines = Deadline.query.all()
-    payments = Payment.query.all()
-    questionnaires = Questionnaire.query.all()
-    appointments = Appointment.query.all()
-    visa_reminders = VisaReminder.query.all()
+    cases = case_query_for_user(current_user).all()
+    case_ids = [case.id for case in cases]
+    documents = (
+        Document.query.filter(Document.case_id.in_(case_ids)).all()
+        if case_ids
+        else []
+    )
+    deadlines = (
+        Deadline.query.filter(Deadline.case_id.in_(case_ids)).all()
+        if case_ids
+        else []
+    )
+    payments = (
+        Payment.query.filter(Payment.case_id.in_(case_ids)).all()
+        if case_ids
+        else []
+    )
+    questionnaires = (
+        Questionnaire.query.filter(Questionnaire.case_id.in_(case_ids)).all()
+        if case_ids
+        else []
+    )
+    appointments = (
+        Appointment.query.filter(Appointment.case_id.in_(case_ids)).all()
+        if case_ids
+        else []
+    )
+    visa_reminders = (
+        VisaReminder.query.filter(VisaReminder.case_id.in_(case_ids)).all()
+        if case_ids
+        else []
+    )
 
     overdue_deadlines = 0
 
@@ -71,7 +97,9 @@ def reports_overview(current_user):
 
     return jsonify({
         "totals": {
-            "clients": Client.query.count(),
+            "clients": Client.query.filter_by(
+                firm_id=current_user.firm_id
+            ).count(),
             "cases": len(cases),
             "documents": len(documents),
             "questionnaires": len(questionnaires),

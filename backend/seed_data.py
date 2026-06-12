@@ -2,6 +2,7 @@ from app import create_app
 from app.extensions import db
 from app.models import (
     User,
+    Firm,
     Client,
     Case,
     Document,
@@ -82,37 +83,47 @@ with app.app_context():
     Case.query.delete()
     Client.query.delete()
     User.query.delete()
+    Firm.query.delete()
 
     db.session.commit()
 
-    print("Creating users...")
+    print("Creating firm and users...")
+
+    firm = Firm(name="Demo Immigration Firm")
+    db.session.add(firm)
+    db.session.commit()
 
     users = [
         User(
+            firm_id=firm.id,
             name="Admin User",
             email="admin@firm.com",
             password_hash=hash_password("Password123"),
             role="admin"
         ),
         User(
+            firm_id=firm.id,
             name="Mr Rahman",
             email="solicitor@firm.com",
             password_hash=hash_password("Password123"),
             role="solicitor"
         ),
         User(
+            firm_id=firm.id,
             name="Junior Staff 1",
             email="staff@firm.com",
             password_hash=hash_password("Password123"),
             role="staff"
         ),
         User(
+            firm_id=firm.id,
             name="Caseworker Test",
             email="caseworker@firm.com",
             password_hash=hash_password("Password123"),
             role="staff"
         ),
         User(
+            firm_id=firm.id,
             name="Senior Solicitor",
             email="senior@firm.com",
             password_hash=hash_password("Password123"),
@@ -293,7 +304,7 @@ with app.app_context():
     created_cases = []
 
     for item in seed_clients:
-        client = Client(**item["client"])
+        client = Client(firm_id=firm.id, **item["client"])
         db.session.add(client)
         db.session.flush()
 

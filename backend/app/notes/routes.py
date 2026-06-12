@@ -1,13 +1,14 @@
 from flask import Blueprint, request, jsonify
 
 from app.extensions import db
-from app.models import Case, Note
+from app.models import Note
 from app.auth.auth_decorator import (
     CASE_DELETE_ROLES,
     CASE_WRITE_ROLES,
     roles_required,
     token_required,
 )
+from app.auth.tenant import get_case_for_user, get_case_record_for_user
 from app.audit.service import record_audit
 
 
@@ -31,7 +32,7 @@ def note_to_dict(note):
 @notes_bp.route("/cases/<int:case_id>/notes", methods=["GET"])
 @token_required
 def get_case_notes(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -52,7 +53,7 @@ def get_case_notes(current_user, case_id):
 @notes_bp.route("/cases/<int:case_id>/notes", methods=["POST"])
 @roles_required(*CASE_WRITE_ROLES)
 def create_note(current_user, case_id):
-    case = db.session.get(Case, case_id)
+    case = get_case_for_user(current_user, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -93,7 +94,7 @@ def create_note(current_user, case_id):
 @notes_bp.route("/notes/<int:note_id>", methods=["PUT"])
 @roles_required(*CASE_WRITE_ROLES)
 def update_note(current_user, note_id):
-    note = db.session.get(Note, note_id)
+    note = get_case_record_for_user(current_user, Note, note_id)
 
     if not note:
         return jsonify({"message": "Note not found"}), 404
@@ -128,7 +129,7 @@ def update_note(current_user, note_id):
 @notes_bp.route("/notes/<int:note_id>", methods=["DELETE"])
 @roles_required(*CASE_DELETE_ROLES)
 def delete_note(current_user, note_id):
-    note = db.session.get(Note, note_id)
+    note = get_case_record_for_user(current_user, Note, note_id)
 
     if not note:
         return jsonify({"message": "Note not found"}), 404

@@ -12,6 +12,7 @@ users_bp = Blueprint("users", __name__)
 def user_to_dict(user):
     return {
         "id": user.id,
+        "firm_id": user.firm_id,
         "name": user.name,
         "email": user.email,
         "role": user.role,
@@ -26,7 +27,12 @@ def user_to_dict(user):
 @users_bp.route("/users", methods=["GET"])
 @roles_required("admin")
 def get_users(current_user):
-    users = User.query.order_by(User.id.asc()).all()
+    users = (
+        User.query
+        .filter_by(firm_id=current_user.firm_id)
+        .order_by(User.id.asc())
+        .all()
+    )
 
     return jsonify({
         "count": len(users),
@@ -39,7 +45,7 @@ def get_users(current_user):
 def update_user_role(current_user, user_id):
     user = db.session.get(User, user_id)
 
-    if not user:
+    if not user or user.firm_id != current_user.firm_id:
         return jsonify({"message": "User not found"}), 404
 
     data = request.get_json()

@@ -10,6 +10,11 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
+    firm_id = db.Column(
+        db.Integer,
+        db.ForeignKey("firms.id"),
+        nullable=False
+    )
     name = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
@@ -17,10 +22,26 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=utc_now)
 
 
+class Firm(db.Model):
+    __tablename__ = "firms"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), nullable=False)
+    created_at = db.Column(db.DateTime, default=utc_now)
+
+    users = db.relationship("User", backref="firm", lazy=True)
+    clients = db.relationship("Client", backref="firm", lazy=True)
+
+
 class Client(db.Model):
     __tablename__ = "clients"
 
     id = db.Column(db.Integer, primary_key=True)
+    firm_id = db.Column(
+        db.Integer,
+        db.ForeignKey("firms.id"),
+        nullable=False
+    )
 
     full_name = db.Column(db.String(150), nullable=False)
     date_of_birth = db.Column(db.String(50))
@@ -259,6 +280,11 @@ class AuditLog(db.Model):
     __tablename__ = "audit_logs"
 
     id = db.Column(db.Integer, primary_key=True)
+    firm_id = db.Column(
+        db.Integer,
+        db.ForeignKey("firms.id"),
+        nullable=True
+    )
 
     user_id = db.Column(
         db.Integer,
