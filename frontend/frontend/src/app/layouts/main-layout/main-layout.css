@@ -49,10 +49,26 @@
   font-size: 13px;
 }
 
-nav {
+.primary-nav,
+.secondary-nav {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.secondary-nav {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.nav-section-label {
+  display: block;
+  margin: 0 12px 8px;
+  color: #b8b0a3;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 nav a {
@@ -131,7 +147,8 @@ nav a:hover {
     width: 100%;
   }
 
-  nav {
+  .primary-nav,
+  .secondary-nav {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

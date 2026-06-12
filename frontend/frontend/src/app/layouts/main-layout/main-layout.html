@@ -8,7 +8,7 @@
       </div>
     </div>
 
-    <nav>
+    <nav class="primary-nav" aria-label="Primary">
       <a routerLink="/dashboard">
         <span class="nav-icon" aria-hidden="true">▦</span>
         Dashboard
@@ -21,6 +21,14 @@
         <span class="nav-icon" aria-hidden="true">¶</span>
         Reports
       </a>
+    </nav>
+
+    <nav
+      *ngIf="canViewAuditLog() || canManageUsers()"
+      class="secondary-nav"
+      aria-label="Administration"
+    >
+      <span class="nav-section-label">Administration</span>
       <a
         *ngIf="canViewAuditLog()"
         routerLink="/audit-log"

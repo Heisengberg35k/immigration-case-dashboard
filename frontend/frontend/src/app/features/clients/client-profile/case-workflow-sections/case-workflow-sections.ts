@@ -22,10 +22,27 @@ import { CaseVisaRemindersSection } from './case-visa-reminders-section/case-vis
     CaseQuestionnairesSection,
     CaseVisaRemindersSection
   ],
-  templateUrl: './case-workflow-sections.html'
+  templateUrl: './case-workflow-sections.html',
+  styleUrl: './case-workflow-sections.css'
 })
 export class CaseWorkflowSections {
   @Input() profile: any = null;
   @Input() caseId = 0;
   @Output() profileChanged = new EventEmitter<void>();
+
+  activeSection = 'documents';
+
+  sections = [
+    { id: 'documents', label: 'Documents', mark: 'I' },
+    { id: 'questionnaires', label: 'Questionnaires', mark: 'II' },
+    { id: 'deadlines', label: 'Deadlines', mark: 'III' },
+    { id: 'appointments', label: 'Appointments', mark: 'IV' },
+    { id: 'payments', label: 'Payments', mark: 'V' },
+    { id: 'visaReminders', label: 'Visa Reminders', mark: 'VI' },
+    { id: 'notes', label: 'Notes', mark: 'VII' }
+  ];
+
+  selectSection(sectionId: string): void {
+    this.activeSection = sectionId;
+  }
 }
