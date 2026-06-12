@@ -1,79 +1,43 @@
 .audit-page {
-  padding: 24px;
+  padding: 0;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
   margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
 }
 
 .page-header h1 {
   margin: 0;
-  color: #111827;
-  font-size: 28px;
+  font-size: 34px;
+  line-height: 1.05;
 }
 
 .page-header p {
-  margin: 6px 0 0;
-  color: #6b7280;
-}
-
-.page-header button {
-  border: none;
-  border-radius: 8px;
-  padding: 10px 14px;
-  background: #111827;
-  color: white;
-  cursor: pointer;
-  font-weight: 600;
+  margin: 7px 0 0;
+  color: var(--ink-500);
 }
 
 .table-wrapper {
   overflow-x: auto;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
 }
 
 table {
-  width: 100%;
   min-width: 900px;
-  border-collapse: collapse;
 }
 
 th,
 td {
   padding: 12px;
-  border-top: 1px solid #e5e7eb;
-  text-align: left;
-  color: #374151;
-  font-size: 14px;
 }
 
-th {
-  background: #f9fafb;
-  border-top: 0;
-  color: #111827;
-  font-size: 13px;
-}
-
-.loading,
-.error,
-.empty-state {
-  padding: 14px;
-  border-radius: 8px;
-}
-
-.loading,
-.empty-state {
-  color: #374151;
-  background: #f9fafb;
-}
-
-.error {
-  color: #991b1b;
-  background: #fee2e2;
+@media (max-width: 800px) {
+  .page-header {
+    flex-direction: column;
+  }
 }

@@ -1,93 +1,76 @@
 .reports-page {
-  padding: 24px;
+  padding: 0;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
   margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
 }
 
 .page-header h1 {
   margin: 0;
-  color: #111827;
-  font-size: 28px;
+  font-size: 34px;
+  line-height: 1.05;
 }
 
 .page-header p {
-  margin: 6px 0 0;
-  color: #6b7280;
-}
-
-.page-header button {
-  border: none;
-  border-radius: 8px;
-  padding: 10px 14px;
-  background: #111827;
-  color: white;
-  cursor: pointer;
-  font-weight: 600;
+  margin: 7px 0 0;
+  color: var(--ink-500);
 }
 
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-bottom: 22px;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .metric-card,
 .report-section {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
   padding: 18px;
 }
 
 .metric-card span {
-  color: #6b7280;
+  color: var(--ink-650);
   font-size: 13px;
   font-weight: 700;
+  text-transform: uppercase;
 }
 
 .metric-card strong {
   display: block;
-  margin-top: 9px;
-  color: #111827;
-  font-size: 28px;
+  margin-top: 10px;
+  color: var(--ink-950);
+  font-size: 32px;
+  line-height: 1;
 }
 
 .metric-card.warning {
-  border-left: 5px solid #f59e0b;
+  border-left: 4px solid var(--warning);
 }
 
 .metric-card.important {
-  border-left: 5px solid #dc2626;
+  border-left: 4px solid var(--danger);
 }
 
 .report-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .report-section h2 {
   margin: 0 0 12px;
-  color: #111827;
-  font-size: 17px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
+  font-size: 20px;
 }
 
 td {
   padding: 10px 0;
-  border-top: 1px solid #e5e7eb;
-  color: #374151;
 }
 
 td:last-child {
@@ -95,25 +78,13 @@ td:last-child {
   font-weight: 700;
 }
 
-.loading,
-.error {
-  padding: 14px;
-  border-radius: 8px;
-}
-
-.loading {
-  background: #f9fafb;
-  color: #374151;
-}
-
-.error {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
 @media (max-width: 1000px) {
   .metric-grid,
   .report-grid {
     grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-direction: column;
   }
 }

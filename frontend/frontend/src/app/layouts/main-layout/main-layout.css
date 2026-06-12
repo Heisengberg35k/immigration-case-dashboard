@@ -1,66 +1,142 @@
 .app-shell {
   min-height: 100vh;
   display: flex;
-  background: #f4f6f8;
-  font-family: Arial, sans-serif;
+  background: var(--paper-soft);
+  font-family: var(--font-ui);
 }
 
 .sidebar {
-  width: 240px;
-  background: #111827;
-  color: white;
-  padding: 24px;
+  width: 272px;
+  background: #202428;
+  color: var(--paper);
+  padding: 22px 18px;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid #121416;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 6px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  margin-bottom: 22px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.36);
+  color: #f4f1e9;
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .sidebar h2 {
-  margin: 0 0 32px;
+  margin: 0;
+  font-size: 24px;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.brand-block small {
+  display: block;
+  margin-top: 5px;
+  color: #c8c3b8;
+  font-size: 13px;
 }
 
 nav {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
 
 nav a {
-  color: #d1d5db;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: #e1ddd3;
   text-decoration: none;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-size: 16px;
 }
 
 nav a:hover {
-  background: #1f2937;
-  color: white;
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.nav-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  color: #d6cab7;
+  font-size: 15px;
 }
 
 .user-box {
   margin-top: auto;
-  border-top: 1px solid #374151;
-  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 18px 6px 0;
 }
 
 .user-box p {
   margin: 0;
-  font-weight: 600;
+  font-weight: 700;
+  color: #ffffff;
 }
 
 .user-box small {
-  color: #9ca3af;
+  display: inline-block;
+  margin-top: 5px;
+  color: #c8c3b8;
+  text-transform: capitalize;
 }
 
 .user-box button {
-  margin-top: 12px;
+  margin-top: 14px;
   width: 100%;
   padding: 10px;
-  border: 0;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 4px;
+  background: transparent;
+  color: #ffffff;
   cursor: pointer;
+  font-weight: 700;
+}
+
+.user-box button:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .main-content {
   flex: 1;
-  padding: 32px;
+  min-width: 0;
+  padding: 28px;
+}
+
+@media (max-width: 760px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .main-content {
+    padding: 18px;
+  }
 }

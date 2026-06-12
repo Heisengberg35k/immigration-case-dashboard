@@ -1,29 +1,28 @@
 .login-page {
   min-height: 100vh;
-  background: #f4f6f8;
+  background: var(--paper-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Arial, sans-serif;
+  padding: 24px;
+  font-family: var(--font-ui);
 }
 
 .login-card {
-  width: 380px;
-  background: white;
-  padding: 32px;
-  border-radius: 14px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  width: min(430px, 100%);
+  padding: 34px;
 }
 
 .login-card h1 {
   margin: 0;
-  font-size: 24px;
-  color: #1f2937;
+  font-size: 30px;
+  line-height: 1.1;
+  color: var(--ink-950);
 }
 
 .login-card p {
-  margin: 8px 0 24px;
-  color: #6b7280;
+  margin: 8px 0 26px;
+  color: var(--ink-500);
 }
 
 form {
@@ -33,25 +32,26 @@ form {
 
 label {
   margin-bottom: 6px;
-  font-weight: 600;
-  color: #374151;
+  font-weight: 700;
+  color: var(--ink-800);
 }
 
 input {
   margin-bottom: 16px;
-  padding: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
 }
 
 button {
   padding: 12px;
-  background: #1f2937;
-  color: white;
-  border: 0;
-  border-radius: 8px;
+  background: var(--accent);
+  color: var(--paper);
+  border: 1px solid var(--accent-dark);
+  border-radius: 4px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
+}
+
+button:hover {
+  background: var(--accent-dark);
 }
 
 button:disabled {
@@ -61,6 +61,4 @@ button:disabled {
 
 .error {
   margin-top: 16px;
-  color: #b91c1c;
-  font-size: 14px;
 }

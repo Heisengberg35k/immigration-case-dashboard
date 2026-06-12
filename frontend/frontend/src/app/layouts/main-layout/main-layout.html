@@ -1,21 +1,38 @@
 <div class="app-shell">
   <aside class="sidebar">
-    <h2>CaseFlow</h2>
+    <div class="brand-block">
+      <span class="brand-mark">CF</span>
+      <div>
+        <h2>CaseFlow</h2>
+        <small>Immigration practice system</small>
+      </div>
+    </div>
 
     <nav>
-      <a routerLink="/dashboard">Dashboard</a>
-      <a routerLink="/clients">Clients</a>
-      <a routerLink="/reports">Reports</a>
+      <a routerLink="/dashboard">
+        <span class="nav-icon" aria-hidden="true">▦</span>
+        Dashboard
+      </a>
+      <a routerLink="/clients">
+        <span class="nav-icon" aria-hidden="true">§</span>
+        Clients
+      </a>
+      <a routerLink="/reports">
+        <span class="nav-icon" aria-hidden="true">¶</span>
+        Reports
+      </a>
       <a
         *ngIf="canViewAuditLog()"
         routerLink="/audit-log"
       >
+        <span class="nav-icon" aria-hidden="true">※</span>
         Audit Log
       </a>
       <a
         *ngIf="canManageUsers()"
         routerLink="/users"
       >
+        <span class="nav-icon" aria-hidden="true">†</span>
         Users
       </a>
     </nav>
