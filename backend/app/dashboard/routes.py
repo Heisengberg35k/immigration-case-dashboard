@@ -1,6 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import Blueprint, jsonify
 
+from app.extensions import db
 from app.models import (
     Case,
     Document,
@@ -27,7 +28,7 @@ def parse_date(date_text):
 
 
 def deadline_alert_to_dict(deadline, deadline_date, today):
-    case = Case.query.get(deadline.case_id)
+    case = db.session.get(Case, deadline.case_id)
     client = case.client if case else None
     days_until_due = (deadline_date - today).days
 
@@ -56,7 +57,7 @@ def deadline_alert_to_dict(deadline, deadline_date, today):
 @dashboard_bp.route("/summary", methods=["GET"])
 @token_required
 def dashboard_summary(current_user):
-    today = datetime.utcnow().date()
+    today = datetime.now(timezone.utc).date()
     next_7_days = today + timedelta(days=7)
     next_6_months = today + timedelta(days=183)
 

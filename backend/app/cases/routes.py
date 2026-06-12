@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 
+from app.extensions import db
 from app.models import (
     Case,
     Document,
@@ -153,7 +154,7 @@ def note_to_dict(note):
 @cases_bp.route("/<int:case_id>/full-profile", methods=["GET"])
 @token_required
 def get_case_full_profile(current_user, case_id):
-    case = Case.query.get(case_id)
+    case = db.session.get(Case, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404

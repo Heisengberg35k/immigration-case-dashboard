@@ -30,7 +30,7 @@ def visa_reminder_to_dict(reminder):
 @visa_reminders_bp.route("/cases/<int:case_id>/visa-reminders", methods=["GET"])
 @token_required
 def get_case_visa_reminders(current_user, case_id):
-    case = Case.query.get(case_id)
+    case = db.session.get(Case, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -49,7 +49,7 @@ def get_case_visa_reminders(current_user, case_id):
 @visa_reminders_bp.route("/cases/<int:case_id>/visa-reminders", methods=["POST"])
 @roles_required(*CASE_WRITE_ROLES)
 def create_visa_reminder(current_user, case_id):
-    case = Case.query.get(case_id)
+    case = db.session.get(Case, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -89,7 +89,7 @@ def create_visa_reminder(current_user, case_id):
 @visa_reminders_bp.route("/visa-reminders/<int:reminder_id>", methods=["GET"])
 @token_required
 def get_visa_reminder(current_user, reminder_id):
-    reminder = VisaReminder.query.get(reminder_id)
+    reminder = db.session.get(VisaReminder, reminder_id)
 
     if not reminder:
         return jsonify({"message": "Visa reminder not found"}), 404
@@ -100,7 +100,7 @@ def get_visa_reminder(current_user, reminder_id):
 @visa_reminders_bp.route("/visa-reminders/<int:reminder_id>", methods=["PUT"])
 @roles_required(*CASE_WRITE_ROLES)
 def update_visa_reminder(current_user, reminder_id):
-    reminder = VisaReminder.query.get(reminder_id)
+    reminder = db.session.get(VisaReminder, reminder_id)
 
     if not reminder:
         return jsonify({"message": "Visa reminder not found"}), 404
@@ -139,7 +139,7 @@ def update_visa_reminder(current_user, reminder_id):
 @visa_reminders_bp.route("/visa-reminders/<int:reminder_id>", methods=["DELETE"])
 @roles_required(*CASE_DELETE_ROLES)
 def delete_visa_reminder(current_user, reminder_id):
-    reminder = VisaReminder.query.get(reminder_id)
+    reminder = db.session.get(VisaReminder, reminder_id)
 
     if not reminder:
         return jsonify({"message": "Visa reminder not found"}), 404

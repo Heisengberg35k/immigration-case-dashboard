@@ -1,5 +1,5 @@
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 
 from flask import Blueprint, jsonify
 
@@ -42,7 +42,7 @@ def counter_to_list(counter):
 @reports_bp.route("/overview", methods=["GET"])
 @token_required
 def reports_overview(current_user):
-    today = datetime.utcnow().date()
+    today = datetime.now(timezone.utc).date()
 
     cases = Case.query.all()
     documents = Document.query.all()

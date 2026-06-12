@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify
 
+from app.extensions import db
 from app.models import AuditLog, User
 from app.auth.auth_decorator import roles_required
 
@@ -8,7 +9,7 @@ audit_bp = Blueprint("audit", __name__)
 
 
 def audit_log_to_dict(log):
-    user = User.query.get(log.user_id) if log.user_id else None
+    user = db.session.get(User, log.user_id) if log.user_id else None
 
     return {
         "id": log.id,

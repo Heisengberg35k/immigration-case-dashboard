@@ -35,7 +35,7 @@ def calculate_balance(total_fee, amount_paid):
 @payments_bp.route("/cases/<int:case_id>/payments", methods=["GET"])
 @token_required
 def get_case_payments(current_user, case_id):
-    case = Case.query.get(case_id)
+    case = db.session.get(Case, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -51,7 +51,7 @@ def get_case_payments(current_user, case_id):
 @payments_bp.route("/cases/<int:case_id>/payments", methods=["POST"])
 @roles_required(*CASE_WRITE_ROLES)
 def create_payment(current_user, case_id):
-    case = Case.query.get(case_id)
+    case = db.session.get(Case, case_id)
 
     if not case:
         return jsonify({"message": "Case not found"}), 404
@@ -108,7 +108,7 @@ def create_payment(current_user, case_id):
 @payments_bp.route("/payments/<int:payment_id>", methods=["GET"])
 @token_required
 def get_payment(current_user, payment_id):
-    payment = Payment.query.get(payment_id)
+    payment = db.session.get(Payment, payment_id)
 
     if not payment:
         return jsonify({"message": "Payment not found"}), 404
@@ -119,7 +119,7 @@ def get_payment(current_user, payment_id):
 @payments_bp.route("/payments/<int:payment_id>", methods=["PUT"])
 @roles_required(*CASE_WRITE_ROLES)
 def update_payment(current_user, payment_id):
-    payment = Payment.query.get(payment_id)
+    payment = db.session.get(Payment, payment_id)
 
     if not payment:
         return jsonify({"message": "Payment not found"}), 404
@@ -174,7 +174,7 @@ def update_payment(current_user, payment_id):
 @payments_bp.route("/payments/<int:payment_id>", methods=["DELETE"])
 @roles_required(*CASE_DELETE_ROLES)
 def delete_payment(current_user, payment_id):
-    payment = Payment.query.get(payment_id)
+    payment = db.session.get(Payment, payment_id)
 
     if not payment:
         return jsonify({"message": "Payment not found"}), 404

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import Blueprint, request, jsonify, current_app
 import bcrypt
 import jwt
@@ -103,7 +103,7 @@ def login():
             "user_id": user.id,
             "email": user.email,
             "role": user.role,
-            "exp": datetime.utcnow() + timedelta(hours=8)
+            "exp": datetime.now(timezone.utc) + timedelta(hours=8)
         },
         current_app.config["SECRET_KEY"],
         algorithm="HS256"

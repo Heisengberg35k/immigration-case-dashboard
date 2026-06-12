@@ -1,5 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from .extensions import db
+
+
+def utc_now():
+    return datetime.now(timezone.utc)
 
 
 class User(db.Model):
@@ -10,7 +14,7 @@ class User(db.Model):
     email = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
     role = db.Column(db.String(50), nullable=False, default="staff")
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
 
 
 class Client(db.Model):
@@ -26,11 +30,11 @@ class Client(db.Model):
     preferred_contact_method = db.Column(db.String(50))
     whatsapp_number = db.Column(db.String(50))
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utc_now,
+        onupdate=utc_now
     )
 
     cases = db.relationship(
@@ -65,11 +69,11 @@ class Case(db.Model):
     file_location = db.Column(db.Text)
     solicitor_review_status = db.Column(db.String(100), default="Not Reviewed")
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utc_now,
+        onupdate=utc_now
     )
 
 
@@ -94,11 +98,11 @@ class Document(db.Model):
     checked_by = db.Column(db.String(120))
     notes = db.Column(db.Text)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utc_now,
+        onupdate=utc_now
     )
 
 
@@ -121,11 +125,11 @@ class Questionnaire(db.Model):
     follow_up_needed = db.Column(db.Boolean, default=False)
     notes = db.Column(db.Text)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utc_now,
+        onupdate=utc_now
     )
 
 
@@ -145,11 +149,11 @@ class Deadline(db.Model):
     status = db.Column(db.String(80), default="Upcoming")
     notes = db.Column(db.Text)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utc_now,
+        onupdate=utc_now
     )
 
 
@@ -171,11 +175,11 @@ class Appointment(db.Model):
     status = db.Column(db.String(80), default="Booked")
     notes = db.Column(db.Text)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utc_now,
+        onupdate=utc_now
     )
 
 
@@ -197,11 +201,11 @@ class Payment(db.Model):
     next_payment_due = db.Column(db.String(50))
     notes = db.Column(db.Text)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utc_now,
+        onupdate=utc_now
     )
 
 
@@ -222,11 +226,11 @@ class VisaReminder(db.Model):
     client_contacted = db.Column(db.Boolean, default=False)
     notes = db.Column(db.Text)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=utc_now,
+        onupdate=utc_now
     )
 
 
@@ -248,7 +252,7 @@ class Note(db.Model):
     )
 
     note_text = db.Column(db.Text, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)
 
 
 class AuditLog(db.Model):
@@ -267,4 +271,4 @@ class AuditLog(db.Model):
     entity_id = db.Column(db.Integer)
     description = db.Column(db.Text)
     ip_address = db.Column(db.String(80))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=utc_now)

@@ -2,6 +2,7 @@ from functools import wraps
 from flask import request, jsonify, current_app
 import jwt
 
+from app.extensions import db
 from app.models import User
 
 
@@ -29,7 +30,7 @@ def token_required(f):
                 algorithms=["HS256"]
             )
 
-            current_user = User.query.get(data["user_id"])
+            current_user = db.session.get(User, data["user_id"])
 
             if not current_user:
                 return jsonify({"message": "User not found"}), 401
